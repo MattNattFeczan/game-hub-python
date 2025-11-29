@@ -14,7 +14,8 @@
 - Strategic AI: Minimax for Tic-Tac-Toe, smart targeting for Battleship [web:97]
 
 ## 🛠️ Tech Stack
-pygame==2.6.0 # Graphics, sprites, events
-random # Ship/mine generation
-minimax # Perfect Tic-Tac-Toe AI
+- pygame==2.6.0        # Graphics, sprites, event loop, 10x10 grid rendering
+- numpy==2.1.1         # 10x10 grid arrays, 5-in-row win detection
+- random               # Ship/mine generation, random AI moves
+- minimax algorithm    # Perfect Tic-Tac-Toe AI (recursive depth-first search)
 
