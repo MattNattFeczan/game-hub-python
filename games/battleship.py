@@ -13,6 +13,10 @@ enemy_tiles = []
 your_tiles = []
 ships = []
 
+base_color = (100, 180, 220)
+collides_with = None
+play = False
+
 class tile():
     def __init__(self, x, y, tile_map):
         self.x = (WIDTH - 640)/2 + x
@@ -21,7 +25,7 @@ class tile():
         self.height = 64
         self.clicked = False
         self.colors = {
-            'normal': (120, 120, 120),
+            'normal': base_color,
             'hover': (219, 145, 140),
             'hit': (76, 219, 87),
             'miss': ()
@@ -29,40 +33,79 @@ class tile():
         
         self.surface = pygame.Surface((self.width, self.height))
         self.body = pygame.Rect(self.x, self.y, self.width, self.height)
-
         tile_map.append(self)
 
     def draw(self):
-        mouse = pygame.mouse.get_pos()
+
+        global play
+        self.surface.fill(self.colors['normal']) # we have problem here it makes it so that marking isn't permament
+        if play != False:
+            mouse = pygame.mouse.get_pos()
 
 
-        if self.body.collidepoint(mouse) and not self.clicked:
-            self.surface.fill(self.colors['hover'])
+            if self.body.collidepoint(mouse) and not self.clicked:
+                self.surface.fill(self.colors['hover'])
 
-            if pygame.mouse.get_pressed(num_buttons=3)[0]:
-                self.clicked = True
-                self.surface.fill(self.colors['hit'])
-        elif not self.clicked:
-            self.surface.fill(self.colors['normal'])
-        
+                if pygame.mouse.get_pressed(num_buttons=3)[0]:
+                    self.clicked = True
+                    self.surface.fill(self.colors['hit'])
+                elif not self.clicked:
+                    self.surface.fill(self.colors['normal'])
+            
 
         SCREEN.blit(self.surface, self.body)
         pygame.draw.rect(SCREEN, (0, 0, 0), [self.x+3, self.y+3, self.width-6, self.height-6], width=3)
 
+        
 class ship():
-    def __init__(self, x, y, width, height):
-        self.body = pygame.Rect(x, y, width, height)
+    def __init__(self, number, size_unit, x, y, width, height):
+        self.number = number
+        self.size_unit = size_unit
+        self.body = pygame.Rect(x, y, self.size_unit*width, height)
         self.color = (255, 255, 255)
         ships.append(self)
     def draw(self):
         pygame.draw.rect(SCREEN, self.color, self.body)
+    def interact(self, event):
+        global collides_with
+        if play == False:
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if event.button == 1:
+                        if self.body.collidepoint(event.pos):
+                            collides_with = self.number
+                if self.size_unit != 1 and event.button == 3 and self.body.collidepoint(event.pos):
+                    k = self.body.width
+                    self.body.width = self.body.height
+                    self.body.height = k
 
+            if event.type == pygame.MOUSEBUTTONUP:
+                if event.button == 1:
+                    collides_with = None
+
+            if event.type == pygame.MOUSEMOTION:
+                if collides_with == self.number:
+                    self.body.move_ip(event.rel)
+
+
+class start_button():
+    def __init__(self):
+        self.body = pygame.Rect(WIDTH/2, HEIGHT-40, 120, 60) #to do make it better
+        self.text = pygame.font.SysFont('Arial', 20).render('START GAME', True, "white")
+    def interact(self):
+        mouse = pygame.mouse.get_pos()
+        global play
+        if self.body.collidepoint(mouse):
+            if pygame.mouse.get_pressed(num_buttons=3)[0]:
+                play = True
+        if play == False:
+            SCREEN.blit(self.text, self.body)
+            
 
 x = 950
 y = 500
 z = 1
 for i in range(0, 7):
-    ship(x, y, z*38, 38)
+    ship(i, z, x, y, 38, 38)
     if i == 2 or i == 5:
         z +=2
     y += 80
@@ -86,32 +129,14 @@ for i in range(1, 101):
         x = 0
 
 
-
-
-collides_with = None
-
+start = start_button()
 while True:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
             sys.exit()
 
-        if event.type == pygame.MOUSEBUTTONDOWN:
-            if event.button == 1:
-                for n, ship in enumerate(ships):
-                    if ship.body.collidepoint(event.pos):
-                        collides_with = n
-
-        if event.type == pygame.MOUSEBUTTONUP:
-            if event.button == 1:
-                collides_with = None
-
-        if event.type == pygame.MOUSEMOTION:
-            if collides_with != None:
-                ships[collides_with].body.move_ip(event.rel)
-                
-                
-        SCREEN.fill((98, 99, 181))
+        SCREEN.fill(base_color)
         for ob in enemy_tiles:
             ob.draw()
 
@@ -119,8 +144,10 @@ while True:
             ob.draw()
 
         for s in ships:
+            s.interact(event)
             s.draw()
 
+        start_button().interact()
 
 
     pygame.display.flip()
