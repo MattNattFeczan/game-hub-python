@@ -1,18 +1,6 @@
 import random
 import bisect
-#plansza=[[0]*10 for i in range(10)]
-plansza=[
-    [0, 0, 0, 0, 0, 1, 0, 0, 0, 0],
-    [1, 1, 1, 0, 0, 1, 0, 1, 1, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [1, 0, 0, 0, 1, 1, 1, 0, 0, 0],
-    [1, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [1, 0, 0, 1, 1, 0, 0, 1, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 1, 0, 0],
-    [0, 1, 1, 0, 0, 0, 0, 0, 0, 1],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-    [0, 0, 0, 1, 0, 0, 0, 0, 0, 0]
-]
+plansza=[[0]*10 for i in range(10)]
 original=[
     [0, 0, 0, 0, 0, 1, 0, 0, 0, 0],
     [1, 1, 1, 0, 0, 1, 0, 1, 1, 0],
@@ -25,13 +13,50 @@ original=[
     [0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
     [0, 0, 0, 1, 0, 0, 0, 0, 0, 0]
 ]
-#original=[[0]*10 for i in range(10)]
+statki_bota=[[0]*10 for i in range(10)]
 pozostale_statki=[0, 4, 3, 2, 1] #indeks to dlugosc statku
 sprawdz_obok_x=[1,-1,0,0]
 sprawdz_obok_y=[0,0,1,-1]
 ktory=0
 statek=[]
 ktory_z_rzedu=0
+def mozna_ustawic(x, y, poziomy, dlugosc):
+    if poziomy:
+        if y+dlugosc>9: return 0
+        for i in range (-1, dlugosc+1):
+            if y+i>-1 and y+i<10:
+                if statki_bota[x][y+i]: return 0
+                if x+1<10:
+                    if statki_bota[x+1][y+i]: return 0
+                if x-1>-1:
+                    if statki_bota[x-1][y+i]: return 0    
+    else:
+        if x+dlugosc>9: return 0
+        for i in range (-1, dlugosc+1):
+            if x+i>-1 and x+i<10:
+                if statki_bota[x+i][y]: return 0
+                if y+1<10:
+                    if statki_bota[x+i][y+1]: return 0
+                if y-1>-1:
+                    if statki_bota[x+i][y-1]: return 0    
+    return 1
+def ustaw_statki():
+    statki_do_ustawienia=[4, 3, 3, 2, 2, 2, 1, 1, 1, 1]
+    for i in range (10):
+        mozna=0
+        poziomy=0
+        x_pocz=0
+        y_pocz=0
+        while not mozna:
+            x_pocz=random.randint(0, 9)
+            y_pocz=random.randint(0, 9)
+            poziomy=random.randint(0, 1)
+            mozna=mozna_ustawic(x_pocz, y_pocz, poziomy, statki_do_ustawienia[i]) 
+        for j in range (statki_do_ustawienia[i]):
+            if poziomy:
+                statki_bota[x_pocz][y_pocz+j]=1
+            else:
+                statki_bota[x_pocz+j][y_pocz]=1
 def zaktualizuj_pozostale_pola():
 	pozostale=[]
 	for i in range (10):
@@ -107,11 +132,10 @@ def strzelaj():
         return 1
     else:
         return 0
-for i in range(10):
-    #if strzelaj()==1:
-        strzelaj()
-        for j in range(10):
-            for k in range(10):
-                print(plansza[j][k],end=" ")
-            print('\n')
-        print('\n')     
+       
+ustaw_statki()
+for j in range(10):
+    for k in range(10):
+        print(statki_bota[j][k],end=" ")
+    print('\n')
+print('\n')     
