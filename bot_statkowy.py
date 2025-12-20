@@ -32,7 +32,6 @@ sprawdz_obok_y=[0,0,1,-1]
 ktory=0
 ostatni_trafiony=None, None
 statek=[]
-wspolrzedne_poczatku=None, None
 statek_na_celowniku=0
 ktory_z_rzedu=0
 def zaktualizuj_pozostale_pola():
@@ -93,13 +92,12 @@ def kontynuuj(i,j): #jesli trafiony strzelaj dalej
         pozostale_statki[ktory_z_rzedu]-=1
         return None, None
 def strzelaj():
-    global statek_na_celowniku, ostatni_trafiony, statek, ktory_z_rzedu, ktory
+    global statek, ktory_z_rzedu, ktory
     losowanie=zaktualizuj_pozostale_pola()
     i,j=(None, None)
-    if statek_na_celowniku and ostatni_trafiony is not None and czy_zostaly_statki(ktory_z_rzedu):
-        i,j=kontynuuj(ostatni_trafiony[0],ostatni_trafiony[1])
-    if not statek_na_celowniku or ostatni_trafiony is None or not czy_zostaly_statki(ktory_z_rzedu)or i is None:
-        statek_na_celowniku=0
+    if statek and czy_zostaly_statki(ktory_z_rzedu):
+        i,j=kontynuuj(statek[-1][0], statek[-1][1])
+    if not statek or not czy_zostaly_statki(ktory_z_rzedu) or i is None: #jesli zamiast if wstawic else nie sprawdzalby czy kontynuuj zwrocilo none
         ktory_z_rzedu=0
         ktory=0
         statek=[]
@@ -109,8 +107,6 @@ def strzelaj():
         plansza[i][j]=-2
         bisect.insort(statek, (i, j))
         ktory_z_rzedu+=1
-        statek_na_celowniku=1
-        ostatni_trafiony=(i,j)
         return 1
     else:
         return 0
