@@ -30,9 +30,7 @@ pozostale_statki=[0, 4, 3, 2, 1] #indeks to dlugosc statku
 sprawdz_obok_x=[1,-1,0,0]
 sprawdz_obok_y=[0,0,1,-1]
 ktory=0
-ostatni_trafiony=None, None
 statek=[]
-statek_na_celowniku=0
 ktory_z_rzedu=0
 def zaktualizuj_pozostale_pola():
 	pozostale=[]
@@ -54,7 +52,6 @@ def kontynuuj(i,j): #jesli trafiony strzelaj dalej
     global ktory, ktory_z_rzedu, pozostale_statki
     if ktory_z_rzedu==1:
         while ktory<4:
-            print("ekstra")
             test_i=i+sprawdz_obok_x[ktory]
             test_j=j+sprawdz_obok_y[ktory] 
             ktory+=1
@@ -72,18 +69,18 @@ def kontynuuj(i,j): #jesli trafiony strzelaj dalej
         if x_pocz-x_kon==0:
             if y_pocz-1>-1 and plansza[x_pocz][y_pocz-1]!=-1 and plansza[x_pocz][y_pocz-1]!=-2:
                 return x_pocz, y_pocz-1
-            elif y_pocz+1<10 and plansza[x_pocz][y_pocz+1]!=-1 and plansza[x_pocz][y_pocz+1]!=-2:
-                return x_pocz, y_pocz+1
+            elif y_kon+1<10 and plansza[x_pocz][y_kon+1]!=-1 and plansza[x_pocz][y_kon+1]!=-2:
+                return x_pocz, y_kon+1
             for i in range (len(statek)): #zatop
                 if x_pocz-1>-1:
                     plansza[x_pocz-1][y_pocz+i]=-1
                 if x_pocz+1<10:
-                    plansza[x_pocz-1][y_pocz+i]=-1
+                    plansza[x_pocz+1][y_pocz+i]=-1
         elif y_pocz-y_kon==0:
             if x_pocz-1>-1 and plansza[x_pocz-1][y_pocz]!=-1 and plansza[x_pocz-1][y_pocz]!=-2:
                 return x_pocz-1, y_pocz
-            elif x_pocz+1>-1 and plansza[x_pocz+1][y_pocz]!=-1 and plansza[x_pocz+1][y_pocz]!=-2:
-                return x_pocz+1, y_pocz
+            elif x_kon+1>-1 and plansza[x_kon+1][y_pocz]!=-1 and plansza[x_kon+1][y_pocz]!=-2:
+                return x_kon+1, y_pocz
             for i in range (len(statek)): #zatop
                 if y_pocz-1>-1:
                     plansza[x_pocz+i][y_pocz-1]=-1
@@ -111,7 +108,8 @@ def strzelaj():
     else:
         return 0
 for i in range(10):
-    if strzelaj()==1:
+    #if strzelaj()==1:
+        strzelaj()
         for j in range(10):
             for k in range(10):
                 print(plansza[j][k],end=" ")
