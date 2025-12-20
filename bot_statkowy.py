@@ -40,6 +40,7 @@ def mozna_ustawic(x, y, poziomy, dlugosc):
                 if y-1>-1:
                     if statki_bota[x+i][y-1]: return 0    
     return 1
+
 def ustaw_statki():
     statki_do_ustawienia=[4, 3, 3, 2, 2, 2, 1, 1, 1, 1]
     for i in range (10):
@@ -57,6 +58,7 @@ def ustaw_statki():
                 statki_bota[x_pocz][y_pocz+j]=1
             else:
                 statki_bota[x_pocz+j][y_pocz]=1
+
 def zaktualizuj_pozostale_pola():
 	pozostale=[]
 	for i in range (10):
@@ -64,6 +66,7 @@ def zaktualizuj_pozostale_pola():
 			if plansza[i][j]!=-1 and plansza[i][j]!=-2:
 				pozostale.append((i,j))
 	return pozostale
+
 def czy_zostaly_statki(od): #sprawdz czy jest sens dalej szukac reszty statku
     for i in range (od, 5):
         if(pozostale_statki[i]):
@@ -73,6 +76,7 @@ def losuj(losowanie):
 	strzal=random.choice(losowanie)
 	i, j=strzal
 	return i,j
+
 def kontynuuj(i,j): #jesli trafiony strzelaj dalej
     global ktory, ktory_z_rzedu, pozostale_statki
     if ktory_z_rzedu==1:
@@ -82,10 +86,9 @@ def kontynuuj(i,j): #jesli trafiony strzelaj dalej
             ktory+=1
             if test_i>-1 and test_j>-1 and test_i<10 and test_j<10 and plansza[test_i][test_j]!=-1 and plansza[test_i][test_j]!=-2:
                 return test_i, test_j
-        if i+1<10: plansza[i+1][j]=-1 #zatop statek
-        if i-1>-1: plansza[i-1][j]=-1
-        if j+1<10: plansza[i][j+1]=-1
-        if j-1>-1: plansza[i][j-1]=-1
+        for a in range (-1, 1): #zatop statek
+            for b in range (-1, 1):
+                if i+a>-1 and i+a<10 and j+b>-1 and j+b<10: plansza[i+a][j+b]=-1
         pozostale_statki[1]-=1
         return None, None
     else:
@@ -96,23 +99,26 @@ def kontynuuj(i,j): #jesli trafiony strzelaj dalej
                 return x_pocz, y_pocz-1
             elif y_kon+1<10 and plansza[x_pocz][y_kon+1]!=-1 and plansza[x_pocz][y_kon+1]!=-2:
                 return x_pocz, y_kon+1
-            for i in range (len(statek)): #zatop
-                if x_pocz-1>-1:
-                    plansza[x_pocz-1][y_pocz+i]=-1
-                if x_pocz+1<10:
-                    plansza[x_pocz+1][y_pocz+i]=-1
+            for i in range (-1, len(statek)+1): #zatop
+                if y_pocz+i>-1 and y_pocz+i<10:
+                    if x_pocz-1>-1:
+                        plansza[x_pocz-1][y_pocz+i]=-1
+                    if x_pocz+1<10:
+                        plansza[x_pocz+1][y_pocz+i]=-1
         elif y_pocz-y_kon==0:
             if x_pocz-1>-1 and plansza[x_pocz-1][y_pocz]!=-1 and plansza[x_pocz-1][y_pocz]!=-2:
                 return x_pocz-1, y_pocz
             elif x_kon+1>-1 and plansza[x_kon+1][y_pocz]!=-1 and plansza[x_kon+1][y_pocz]!=-2:
                 return x_kon+1, y_pocz
-            for i in range (len(statek)): #zatop
-                if y_pocz-1>-1:
-                    plansza[x_pocz+i][y_pocz-1]=-1
-                if y_pocz+1<10:
-                    plansza[x_pocz+i][y_pocz+1]=-1
+            for i in range (-1, len(statek)+1): #zatop
+                if x_pocz+i>-1 and x_pocz+i<10:
+                    if y_pocz-1>-1:
+                        plansza[x_pocz+i][y_pocz-1]=-1
+                    if y_pocz+1<10:
+                        plansza[x_pocz+i][y_pocz+1]=-1
         pozostale_statki[ktory_z_rzedu]-=1
         return None, None
+
 def strzelaj():
     global statek, ktory_z_rzedu, ktory
     losowanie=zaktualizuj_pozostale_pola()
@@ -138,4 +144,12 @@ for j in range(10):
     for k in range(10):
         print(statki_bota[j][k],end=" ")
     print('\n')
-print('\n')     
+print('\n')
+print('\n') 
+for i in range (20):
+    strzelaj()
+    for j in range(10):
+        for k in range(10):
+            print(plansza[j][k],end=" ")
+        print('\n')
+    print('\n')     
