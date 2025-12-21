@@ -3,15 +3,15 @@ import bisect
 plansza=[[0]*10 for i in range(10)]
 original=[
     [0, 0, 0, 0, 0, 1, 0, 0, 0, 0],
-    [1, 1, 1, 0, 0, 1, 0, 1, 1, 0],
+    [1, 1, 1, 0, 0, 1, 0, 0, 0, 0],
     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [1, 0, 0, 0, 1, 1, 1, 0, 0, 0],
     [1, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [1, 0, 0, 0, 0, 0, 0, 0, 0, 1],
     [1, 0, 0, 1, 1, 0, 0, 1, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 1, 0, 0],
-    [0, 1, 1, 0, 0, 0, 0, 0, 0, 1],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [1, 1, 1, 1, 0, 0, 0, 0, 0, 1],
     [0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-    [0, 0, 0, 1, 0, 0, 0, 0, 0, 0]
+    [0, 1, 0, 1, 0, 0, 0, 0, 0, 0]
 ]
 statki_bota=[[0]*10 for i in range(10)]
 pozostale_statki=[0, 4, 3, 2, 1] #indeks to dlugosc statku
@@ -19,7 +19,22 @@ sprawdz_obok_x=[1,-1,0,0]
 sprawdz_obok_y=[0,0,1,-1]
 ktory=0
 statek=[]
-ktory_z_rzedu=0
+trafione_pola=0
+def reset():
+    global statek, ktory, ktory_z_rzedu
+    statek=[]
+    ktory=0
+    ktory_z_rzedu=0
+    pozostale_statki[1]=4
+    pozostale_statki[2]=3
+    pozostale_statki[3]=2
+    pozostale_statki[4]=1
+    for i in range (10):
+        for j in range (10):
+            plansza[i][j]=0
+            statki_bota[i][j]=0
+            original[i][j]=0
+
 def mozna_ustawic(x, y, poziomy, dlugosc):
     if poziomy:
         if y+dlugosc>9: return 0
@@ -60,12 +75,18 @@ def ustaw_statki():
                 statki_bota[x_pocz+j][y_pocz]=1
 
 def zaktualizuj_pozostale_pola():
-	pozostale=[]
-	for i in range (10):
-		for j in range (10):
-			if plansza[i][j]!=-1 and plansza[i][j]!=-2:
-				pozostale.append((i,j))
-	return pozostale
+    szachownica=[]
+    pozostale=[]
+    for i in range (10):
+        for j in range (10):
+            if plansza[i][j]==0:
+                if not (i+j)%2:
+                    szachownica.append((i,j))
+                else:
+                    pozostale.append((i,j))
+    if szachownica:
+        return szachownica
+    return pozostale
 
 def czy_zostaly_statki(od): #sprawdz czy jest sens dalej szukac reszty statku
     for i in range (od, 5):
@@ -78,8 +99,8 @@ def losuj(losowanie):
 	return i,j
 
 def kontynuuj(i,j): #jesli trafiony strzelaj dalej
-    global ktory, ktory_z_rzedu, pozostale_statki
-    if ktory_z_rzedu==1:
+    global ktory
+    if len(statek)==1:
         while ktory<4:
             test_i=i+sprawdz_obok_x[ktory]
             test_j=j+sprawdz_obok_y[ktory] 
@@ -88,7 +109,7 @@ def kontynuuj(i,j): #jesli trafiony strzelaj dalej
                 return test_i, test_j
         for a in range (-1, 2): #zatop statek
             for b in range (-1, 2):
-                if i+a>-1 and i+a<10 and j+b>-1 and j+b<10: plansza[i+a][j+b]=-1
+                if i+a>-1 and i+a<10 and j+b>-1 and j+b<10 and plansza[i+a][j+b]!=-2: plansza[i+a][j+b]=-1
         pozostale_statki[1]-=1
         return None, None
     else:
@@ -116,25 +137,28 @@ def kontynuuj(i,j): #jesli trafiony strzelaj dalej
                         plansza[x_pocz+i][y_pocz-1]=-1
                     if y_pocz+1<10:
                         plansza[x_pocz+i][y_pocz+1]=-1
-        pozostale_statki[ktory_z_rzedu]-=1
+        pozostale_statki[len(statek)]-=1
         return None, None
 
 def strzelaj():
-    global statek, ktory_z_rzedu, ktory
+    global statek, ktory, trafione_pola
     losowanie=zaktualizuj_pozostale_pola()
     i,j=(None, None)
-    if statek and czy_zostaly_statki(ktory_z_rzedu):
+    if statek and czy_zostaly_statki(len(statek)):
         i,j=kontynuuj(statek[-1][0], statek[-1][1])
-    if not statek or not czy_zostaly_statki(ktory_z_rzedu) or i is None: #jesli zamiast if wstawic else nie sprawdzalby czy kontynuuj zwrocilo none
-        ktory_z_rzedu=0
+    if i is None: #jesli zamiast if wstawic else nie sprawdzalby czy kontynuuj zwrocilo none
         ktory=0
         statek=[]
         i,j=losuj(losowanie)
     plansza[i][j]=-1
     if original[i][j]==1:
+        if plansza[i][j]==-2: print('pomocy')
+        trafione_pola+=1
+        if trafione_pola==20:
+            #print('zwyciestwo')
+            return 2
         plansza[i][j]=-2
         bisect.insort(statek, (i, j))
-        ktory_z_rzedu+=1
         return 1
     else:
         return 0
@@ -146,12 +170,14 @@ for j in range(10):
     print('\n')
 print('\n')
 print('\n') 
-for i in range (20):
-    strzelaj()
-    for j in range(10):
-        for k in range(10):
-            if plansza[j][k]==-2: print("x",end=" ")
-            if plansza[j][k]==-1: print("o",end=" ")
-            if plansza[j][k]==0: print(plansza[j][k],end=" ")
-        print('\n')
-    print('\n')     
+for i in range (100):
+    if strzelaj()==2:
+        print(i)
+        exit()
+    #for j in range(10):
+     #   for k in range(10):
+      #      if plansza[j][k]==-2: print("S",end=" ")
+       #     if plansza[j][k]==-1: print("X",end=" ")
+        #    if plansza[j][k]==0: print("~",end=" ")
+        #print('\n')
+    #print(pozostale_statki[1], ' ', pozostale_statki[2], ' ', pozostale_statki[3], ' ', pozostale_statki[4], ' ')     
