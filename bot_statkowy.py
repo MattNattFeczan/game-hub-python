@@ -1,27 +1,17 @@
 import random
 import bisect
 plansza=[[0]*10 for i in range(10)]
-original=[
-    [0, 0, 0, 0, 0, 1, 0, 0, 0, 0],
-    [1, 1, 1, 0, 0, 1, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [1, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [1, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-    [1, 0, 0, 1, 1, 0, 0, 1, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [1, 1, 1, 1, 0, 0, 0, 0, 0, 1],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-    [0, 1, 0, 1, 0, 0, 0, 0, 0, 0]
-]
+original=[[0]*10 for i in range(10)]
 statki_bota=[[0]*10 for i in range(10)]
-pozostale_statki=[0, 4, 3, 2, 1] #indeks to dlugosc statku
+pozostale_statki=[0, 4, 3, 2, 1, 0] #indeks to dlugosc statku
 sprawdz_obok_x=[1,-1,0,0]
 sprawdz_obok_y=[0,0,1,-1]
 ktory=0
 statek=[]
 trafione_pola=0
 def reset():
-    global statek, ktory, ktory_z_rzedu
+    global statek, ktory, trafione_pola
+    trafione_pola=0
     statek=[]
     ktory=0
     ktory_z_rzedu=0
@@ -75,21 +65,21 @@ def ustaw_statki():
                 statki_bota[x_pocz+j][y_pocz]=1
 
 def zaktualizuj_pozostale_pola():
-    szachownica=[]
+    #szachownica=[]
     pozostale=[]
+    szachownica=czy_zostaly_statki(2)
     for i in range (10):
         for j in range (10):
             if plansza[i][j]==0:
-                if not (i+j)%2:
-                    szachownica.append((i,j))
+                if szachownica:
+                    if not (i+j)%2:
+                        pozostale.append((i,j))
                 else:
                     pozostale.append((i,j))
-    if szachownica:
-        return szachownica
     return pozostale
 
 def czy_zostaly_statki(od): #sprawdz czy jest sens dalej szukac reszty statku
-    for i in range (od, 5):
+    for i in range (od, 6):
         if(pozostale_statki[i]):
             return True
     return False  
@@ -141,8 +131,7 @@ def kontynuuj(i,j): #jesli trafiony strzelaj dalej
             test_j=j+sprawdz_obok_y[ktory] 
             ktory+=1
             if test_i>-1 and test_j>-1 and test_i<10 and test_j<10 and plansza[test_i][test_j]!=-1 and plansza[test_i][test_j]!=-2:
-                return test_i, test_j
-        print('help')        
+                return test_i, test_j  
         return None, None
     else:
         x_pocz, y_pocz=statek[0]
@@ -157,7 +146,6 @@ def kontynuuj(i,j): #jesli trafiony strzelaj dalej
                 return x_pocz-1, y_pocz
             elif x_kon+1<10 and plansza[x_kon+1][y_pocz]!=-1 and plansza[x_kon+1][y_pocz]!=-2:
                 return x_kon+1, y_pocz
-        print('pomocy')
         return None, None
 
 def strzelaj():
@@ -170,8 +158,8 @@ def strzelaj():
         ktory=0
         statek=[]
         i,j=losuj(losowanie)
-    plansza[i][j]=-1
     if original[i][j]==1:
+        ktory=0
         trafione_pola+=1
         if trafione_pola==20:
             #print('zwyciestwo')
@@ -191,15 +179,16 @@ def strzelaj():
         return 1
     else:
         #sprawdz czy jest sens celowac dalej czy trzeba zatopic statek
+        plansza[i][j]=-1
         if statek and not czy_wolne_obok(statek):
             zatop(statek)
             print('brak wolnych miejsc')
             pozostale_statki[len(statek)]-=1
             statek=[]
-        plansza[i][j]=-1
         return 0
-       
+    
 ustaw_statki()
+original=statki_bota
 for j in range(10):
     for k in range(10):
         print(statki_bota[j][k],end=" ")
@@ -216,4 +205,4 @@ for i in range (100):
             if plansza[j][k]==-1: print("X",end=" ")
             if plansza[j][k]==0: print("~",end=" ")
         print('\n')
-    print(pozostale_statki[1], ' ', pozostale_statki[2], ' ', pozostale_statki[3], ' ', pozostale_statki[4], ' ')     
+    print(pozostale_statki[1], ' ', pozostale_statki[2], ' ', pozostale_statki[3], ' ', pozostale_statki[4], ' ') 
