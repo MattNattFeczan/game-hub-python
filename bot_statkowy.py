@@ -60,9 +60,9 @@ def ustaw_statki():
             mozna=mozna_ustawic(x_pocz, y_pocz, poziomy, statki_do_ustawienia[i]) 
         for j in range (statki_do_ustawienia[i]):
             if poziomy:
-                statki_bota[x_pocz][y_pocz+j]=1
+                statki_bota[x_pocz][y_pocz+j]=statki_do_ustawienia[i]
             else:
-                statki_bota[x_pocz+j][y_pocz]=1
+                statki_bota[x_pocz+j][y_pocz]=statki_do_ustawienia[i]
 
 def zaktualizuj_pozostale_pola():
     #szachownica=[]
@@ -92,31 +92,6 @@ def zatop(statek):
             if i>-1 and i<10 and j>-1 and j<10:
                 if plansza[i][j]!=-2:
                     plansza[i][j]=-1
-
-def czy_wolne_obok(statek):
-    if len(statek)==1:
-        x=statek[0][0]
-        y=statek[0][1]
-        for i in range (4):
-            test_i=x+sprawdz_obok_x[i]
-            test_j=y+sprawdz_obok_y[i] 
-            if test_i>-1 and test_j>-1 and test_i<10 and test_j<10 and plansza[test_i][test_j]!=-1 and plansza[test_i][test_j]!=-2:
-                return True
-    elif len(statek)>1:
-        x_pocz, y_pocz=statek[0]
-        x_kon, y_kon=statek[-1]
-        if x_pocz-x_kon==0:
-            if y_pocz-1>-1 and plansza[x_pocz][y_pocz-1]!=-1 and plansza[x_pocz][y_pocz-1]!=-2:
-                return True
-            elif y_kon+1<10 and plansza[x_pocz][y_kon+1]!=-1 and plansza[x_pocz][y_kon+1]!=-2:
-                return True
-        elif y_pocz-y_kon==0:
-            if x_pocz-1>-1 and plansza[x_pocz-1][y_pocz]!=-1 and plansza[x_pocz-1][y_pocz]!=-2:
-                return True
-            elif x_kon+1<10 and plansza[x_kon+1][y_pocz]!=-1 and plansza[x_kon+1][y_pocz]!=-2:
-                return True
-    return False
-
 
 def losuj(losowanie):
 	strzal=random.choice(losowanie)
@@ -158,7 +133,7 @@ def strzelaj():
         ktory=0
         statek=[]
         i,j=losuj(losowanie)
-    if original[i][j]==1:
+    if original[i][j]>0:
         ktory=0
         trafione_pola+=1
         if trafione_pola==20:
@@ -166,25 +141,19 @@ def strzelaj():
             return 2
         plansza[i][j]=-2
         bisect.insort(statek, (i, j))
-        if not czy_zostaly_statki(len(statek)+1):
+        if len(statek)==original[i][j]:
+            zatop(statek)
+            pozostale_statki[len(statek)]-=1
+            statek=[]
+            print('trafiony zatopiony')
+        elif not czy_zostaly_statki(len(statek)+1):
             zatop(statek)
             print('brak dluzszych statkow')
             pozostale_statki[len(statek)]-=1
             statek=[]
-        elif statek and not czy_wolne_obok(statek):
-            zatop(statek)
-            print('brak wolnych miejsc')
-            pozostale_statki[len(statek)]-=1
-            statek=[]
         return 1
     else:
-        #sprawdz czy jest sens celowac dalej czy trzeba zatopic statek
         plansza[i][j]=-1
-        if statek and not czy_wolne_obok(statek):
-            zatop(statek)
-            print('brak wolnych miejsc')
-            pozostale_statki[len(statek)]-=1
-            statek=[]
         return 0
     
 ustaw_statki()
