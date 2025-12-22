@@ -4,7 +4,7 @@ original=[[0]*10 for i in range(10)]
 class bot:
     def __init__(self):
         self.plansza=[[0]*10 for i in range(10)]
-        self.statki_bota = [[0]*10 for _ in range(10)]
+        self.statki_bota=[[0]*10 for i in range(10)]
         self.pozostale_statki=[0, 4, 3, 2, 1, 0]
         self.statek=[]
         self.ktory=0
@@ -18,7 +18,7 @@ class bot:
         if poziomy:
             if y+dlugosc>9: return 0
             for i in range (-1, dlugosc+1):
-                if y+i>-1 and y+i<10:
+                if -1<y+i<10:
                     if self.statki_bota[x][y+i]: return 0
                     if x+1<10:
                         if self.statki_bota[x+1][y+i]: return 0
@@ -27,7 +27,7 @@ class bot:
         else:
             if x+dlugosc>9: return 0
             for i in range (-1, dlugosc+1):
-                if x+i>-1 and x+i<10:
+                if -1<x+i<10:
                     if self.statki_bota[x+i][y]: return 0
                     if y+1<10:
                         if self.statki_bota[x+i][y+1]: return 0
@@ -78,7 +78,7 @@ class bot:
         x_kon, y_kon=self.statek[-1]
         for i in range(x_pocz-1, x_kon+2):
             for j in range(y_pocz-1, y_kon+2):
-                if i>-1 and i<10 and j>-1 and j<10:
+                if -1<i<10 and -1<j<10:
                     if self.plansza[i][j]!=-2:
                         self.plansza[i][j]=-1
 
@@ -89,7 +89,7 @@ class bot:
                 test_i=i+self.sprawdz_obok_x[self.ktory]
                 test_j=j+self.sprawdz_obok_y[self.ktory] 
                 self.ktory+=1
-                if test_i>-1 and test_j>-1 and test_i<10 and test_j<10 and self.plansza[test_i][test_j]!=-1 and self.plansza[test_i][test_j]!=-2:
+                if -1<test_i<10 and -1<test_j<10 and self.plansza[test_i][test_j]==0:
                     return test_i, test_j  
             return None, None
         else:
@@ -108,7 +108,7 @@ class bot:
             return None, None
 
     def strzelaj(self):
-        losowanie=self.zaktualizuj_pozostale_pola()
+        losowanie=self.zaktualizuj_pozostale_pola() #czy moze byc puste?
         i,j=(None, None)
         if self.statek:
             i,j=self.kontynuuj()
@@ -116,29 +116,43 @@ class bot:
             self.ktory=0
             self.statek=[]
             i,j=random.choice(losowanie)
-        if original[i][j]>0:
+        return i, j
+            
+            
+    def zrob_cos_z_wynikami(self, trafiony, x, y):
+        if not trafiony:
+            self.plansza[x][y]=-1
+        else:
             self.ktory=0
             self.trafione_pola+=1
-            if self.trafione_pola==20:
-                #print('zwyciestwo')
-                return 2
-            self.plansza[i][j]=-2
-            bisect.insort(self.statek, (i, j))
-            if len(self.statek)==original[i][j]:
+            self.plansza[x][y]=-2
+            bisect.insort(self.statek, (x, y))
+            if len(self.statek)==trafiony:
                 self.zatop()
                 self.pozostale_statki[len(self.statek)]-=1
                 self.statek=[]
-                print('trafiony zatopiony')
+                #print('trafiony zatopiony')
             elif not self.czy_zostaly_statki(len(self.statek)+1):
                 self.zatop()
-                print('brak dluzszych statkow')
+                #print('brak dluzszych statkow')
                 self.pozostale_statki[len(self.statek)]-=1
                 self.statek=[]
-            return 1
+                
+def partia(plansza_gracza, plansza_bota): 
+    kto_teraz=0
+    rundy=0
+    while(True):
+        if kto_teraz:
+            kto_teraz=0
         else:
-            self.plansza[i][j]=-1
-            return 0
-    
+            rundy+=1
+            x, y=bot.strzelaj()
+            if not plansza_gracza[x][y]:
+                kto_teraz=1
+            bot.zrob_cos_z_wynikami(plansza_gracza[x][y], x, y)
+            if bot.trafione_pola==20:
+                print('zwyciestwo bota')
+                return rundy
 '''ustaw_statki()
 original=statki_bota
 for j in range(10):
@@ -165,9 +179,8 @@ for _ in range(1000):
     bot.ustaw_statki()
     original = [row[:] for row in bot.statki_bota]
     for t in range(100):
-        if bot.strzelaj() == 2:
-            wyniki.append(t+1)
-            break
+        wyniki.append(partia(original, bot.statki_bota))
+        break
 
 print("Średnia:", sum(wyniki)/len(wyniki))
 print("Min:", min(wyniki))
