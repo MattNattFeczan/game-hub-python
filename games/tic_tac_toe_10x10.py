@@ -50,8 +50,8 @@ def draw_figures(screen, board, square_size):
 
 
 def make_move(x, y, board, square_size, current_player):
-    col = int(x/square_size)
-    row = int(y/square_size)
+    col = int(y/square_size)
+    row = int(x/square_size)
 
     if row >= ROWS or col >= COLS:
         return False
