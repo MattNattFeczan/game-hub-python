@@ -5,6 +5,9 @@ BLACK = (0, 0, 0)
 GREEN = (0, 255, 0)
 YELLOW = (255, 255, 0)
 RED = (255, 0, 0)
+GRAY = (200, 200, 200)
+DARK_GRAY = (50, 50, 50)
+BLUE = (70, 130, 180)
 
 ROWS = 10
 COLS = 10
@@ -61,6 +64,23 @@ def make_move(x, y, board, square_size, current_player):
     board[col][row] = current_player
     return True
 
+def end_game(board):
+    for row in range(ROWS):
+        for col in range(COLS):
+            if (col >= 4 and board[col][row] 
+                and board[col][row] == board[col-1][row] == board[col-2][row] == board[col-3][row] == board[col-4][row]):
+                return board[col][row]
+            if (row >= 4 and board[col][row] 
+                and board[col][row] == board[col][row-1] == board[col][row-2] == board[col][row-3] == board[col][row-4]):
+                return board[col][row]
+            if (row >= 4 and col >= 4 and board[col][row] 
+                and board[col][row] == board[col-1][row-1] == board[col-2][row-2] == board[col-3][row-3] == board[col-4][row-4]):
+                return board[col][row]
+            if (row + 4 <= ROWS and col >= 4 and board[col][row]
+                and board[col][row] == board[col-1][row+1] == board[col-2][row+2] == board[col-3][row+3] == board[col-4][row+4]):
+                return board[col][row]
+
+    return 0
 
 def launch_tictactoe(screen):
     # getting the size of a screen
@@ -71,29 +91,45 @@ def launch_tictactoe(screen):
     board = [[0 for _ in range(COLS)] for _ in range(ROWS)]
     running = True
     current_player = 1
+    winner = 0
     error_message = ""
 
     # set the font
     font = pygame.font.SysFont(None, 40)
+    big_font = pygame.font.SysFont(None, 60)
+
+    # button presetes
+    btn_again_rect = pygame.Rect(w//4, h//2, w//2, 50) 
+    btn_menu_rect = pygame.Rect(w//4, h//2 + 70, w//2, 50)
 
     while running:
+        winner = end_game(board);
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 return "EXIT" 
-                        
             if event.type == pygame.MOUSEBUTTONDOWN:
                 x, y = event.pos
-                if make_move(x, y, board, square_size, current_player):
-                    error_message = ""
+                # Check if we are still playing 
+                if winner:
+                    if btn_menu_rect.collidepoint((x, y)):
+                        return
+                    if btn_again_rect.collidepoint((x, y)):
+                        board = [[0 for _ in range(COLS)] for _ in range(ROWS)]
+                        winner = 0
+                        current_player = 1
+                        error_message = ""
+                # if we have ended the game
                 else:
-                    error_message = "Niepoprawny ruch! Pole zajęte."
-                pass
+                    if make_move(x, y, board, square_size, current_player):
+                        error_message = ""
+                    else:
+                        error_message = "Niepoprawny ruch! Pole zajęte."
 
         screen.fill(WHITE)
         draw_grid(screen, w, h, square_size)
         draw_figures(screen, board, square_size)
 
-        if error_message != "":
+        if error_message != "" and winner == 0:
             text_surface = font.render(error_message, True, RED)
             
             text_rect = text_surface.get_rect(center=(w // 2, h // 2)) 
@@ -102,6 +138,39 @@ def launch_tictactoe(screen):
             pygame.draw.rect(screen, RED, bg_rect, 3) 
             screen.blit(text_surface, text_rect) 
 
+        if winner:
+            overlay = pygame.Surface((w, h))
+            overlay.set_alpha(180) 
+            overlay.fill(BLACK)
+            screen.blit(overlay, (0,0))
+            announcement = ""
+            if(winner == 1):
+                announcement = "Congratulations! You won!"
+                text_color = GREEN
+            else:
+                announcement = "Sorry, You have lost."
+                text_color = YELLOW
+            
+            # Display announcement
+            text_surf = big_font.render(announcement, True, text_color)
+            text_rect = text_surf.get_rect(center=(w//2, h//3))
+            screen.blit(text_surf, text_rect)
+
+            # Play again button 
+            pygame.draw.rect(screen, BLUE, btn_again_rect)
+            pygame.draw.rect(screen, WHITE, btn_again_rect, 3)
+            msg_again = font.render("Play Again", True, WHITE)
+            msg_again_rect = msg_again.get_rect(center=btn_again_rect.center)
+            screen.blit(msg_again, msg_again_rect)
+
+            # Menu button
+            pygame.draw.rect(screen, DARK_GRAY, btn_menu_rect)
+            pygame.draw.rect(screen, WHITE, btn_menu_rect, 3)
+            msg_menu = font.render("Back to menu", True, WHITE)
+            msg_menu_rect = msg_menu.get_rect(center=btn_menu_rect.center)
+            screen.blit(msg_menu, msg_menu_rect)
+
+            
         pygame.display.update()
 
     return
