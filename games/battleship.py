@@ -2,6 +2,7 @@ import pygame
 import sys
 import tkinter
 import random
+import time
 
 pygame.init()
 FPS = 60
@@ -20,6 +21,24 @@ base_color = (100, 180, 220)
 collides_with = None
 play = False
 state = 'None'
+
+class info: #correct
+    def draw():
+        text = pygame.font.SysFont('Arial', 40).render('Drag ships to map with left mouse button', True, "blue")
+        #text_2 = pygame.font.SysFont('Arial', 50).render('Right click to rotate', True, "blue")
+        surface = pygame.Rect(0, HEIGHT//6, 600, 400)
+        pygame.draw.rect(SCREEN, 'orange', surface)
+        SCREEN.blit(text, surface)
+        #SCREEN.blit(text_2, surface)
+    def hit_msg(msg, state): #msg has to be text
+        color = "green"
+        if state == 'player':
+            color = "red"
+        text = pygame.font.SysFont('Arial', 100).render(msg, True, color)
+        text_rect = text.get_rect(center=(WIDTH//2, HEIGHT//2))
+        surface = pygame.Surface((800, 400)).get_rect(center=(WIDTH//2, HEIGHT//2))
+        pygame.draw.rect(SCREEN, 'orange', surface)
+        SCREEN.blit(text, text_rect)
 
 class tile():
     def __init__(self, x, y, tile_state, tile_map):
@@ -56,15 +75,21 @@ class tile():
                     self.clicked = True
                     if self.unit_num != 0:
                         self.color = self.colors['hit']
+                        return ('HIT!!!', self.state, 1)
                     else:
                         self.color = self.colors['miss']
-                    return True
+                        return ('MISS!!!', self.state, 0)
                 elif not self.clicked:
                     self.color = self.colors['normal']
-        return False
+        return None
 
+    
 class g_map():
     def __init__(self):
+        self.your_segments = 0
+        self.enemy_segments = 0
+        self.your_hits = 0
+        self.enemy_hits = 0
         self.enemy_tiles = []
         self.your_tiles = []
         self.game_state = None
@@ -86,36 +111,51 @@ class g_map():
                 y+=64
                 x = 0
     def start_game(self):
-        self.game_state = 'player'
-    @classmethod
+        if self.game_state == None:
+            self.game_state = 'player'
     def change_state(self):
         if self.game_state == 'player':
             self.game_state = 'enemy'
         else:
             self.game_state = 'player'
     def interact(self):
+        ret = None
         if self.game_state == None:
             return
         elif self.game_state == 'player': 
             for tile in self.your_tiles:
-                if tile.interact(self.game_state):
-                    print(self.game_state)
-                    self.change_state()
-                    print(self.game_state)
-                    return
+                ret = tile.interact(self.game_state)
+                if ret != None:
+                    break
+
         else:
             for tile in self.enemy_tiles:
-                if tile.interact(self.game_state):
-                    self.change_state()
-                    return
+                ret = tile.interact(self.game_state)
+                if ret != None:
+                    break
+        if ret == None:
+            return ret
+        if ret[1] == 'player' and ret[2] == 1:
+            self.your_hits += 1
+        elif ret[1] == 'enemy' and ret[2] == 1:
+            self.enemy_hits += 1
+        return ret
+
     def draw_map(self):
         for ob in self.enemy_tiles:
             ob.draw()
 
         for ob in self.your_tiles:
             ob.draw()
-
-
+    def ending(self):
+        if self.game_state == None:
+            return
+        if self.your_segments == self.your_hits:
+            return 'YOU WIN!!!'
+        elif self.enemy_segments == self.enemy_hits:
+            return 'YOU LOSE!!!'
+        else:
+            return None
         
 class ship():
     def __init__(self, number, size_unit, x, y, width, height):
@@ -175,7 +215,7 @@ class ship():
                 if collides_with == self.number:
                     self.body.move_ip(event.rel)
 
-def random_placement(ships_set, enemy_tiles):
+def random_placement(ships_set, game_map):
     for i in ships_set:
         rotation = random.randint(0,1)
         while True:
@@ -183,45 +223,31 @@ def random_placement(ships_set, enemy_tiles):
             if not rotation and placement%10 < 10 - i//2:
                 j = i
                 while j > 0:
-                    if enemy_tiles[placement + j//2].unit_num != 0:
+                    if game_map.enemy_tiles[placement + j//2].unit_num != 0:
                         break
                     j-=2
                 j = i
                 while j > 0:
-                    enemy_tiles[placement + j//2].unit_num = i
+                    game_map.enemy_tiles[placement + j//2].unit_num = i
                     j-=2
             if rotation and placement < 99 - 10*(i//2):
                 j = i
                 while j > 0:
-                    if enemy_tiles[placement + 10*(j//2)].unit_num != 0:
+                    if game_map.enemy_tiles[placement + 10*(j//2)].unit_num != 0:
                         break
                     j-=2
                 j = i
                 while j > 0:
-                    enemy_tiles[placement + 10*(j//2)].unit_num = i
+                    game_map.enemy_tiles[placement + 10*(j//2)].unit_num = i
                     j-=2
+            game_map.enemy_segments += i
             break
     print()
-    for index,i in enumerate(enemy_tiles):
+    for index,i in enumerate(game_map.enemy_tiles):
                     print(i.unit_num, end='')
                     if index%10 == 9:
                         print()
         
-class info: #correct
-    def draw():
-        text = pygame.font.SysFont('Arial', 40).render('Drag ships to map with left mouse button', True, "blue")
-        #text_2 = pygame.font.SysFont('Arial', 50).render('Right click to rotate', True, "blue")
-        surface = pygame.Rect(0, HEIGHT//6, 600, 400)
-        pygame.draw.rect(SCREEN, 'orange', surface)
-        SCREEN.blit(text, surface)
-        #SCREEN.blit(text_2, surface)
-    def hit_mess(msg): #msg has to be text
-        text = pygame.font.SysFont('Arial', 100).render(msg, True, "red")
-        text_rect = text.get_rect(center=(WIDTH//2, HEIGHT//2))
-        surface = pygame.Surface((800, 400)).get_rect(center=(WIDTH//2, HEIGHT//2))
-        pygame.draw.rect(SCREEN, 'orange', surface)
-        SCREEN.blit(text, text_rect)
-    
                     
 class start_button():
     def __init__(self):
@@ -231,7 +257,7 @@ class start_button():
         self.text = pygame.font.SysFont('Arial', 20).render('START GAME', True, "white")
         self.text_rect = self.text.get_rect(center=(self.width, self.height))
     def interact(self, game_map):
-        global play
+        global play 
         if play == True:
             game_map.start_game()
             return
@@ -244,6 +270,7 @@ class start_button():
             if pygame.mouse.get_pressed(num_buttons=3)[0] and all_set == 7:
                 play = True
                 for s in ships:
+                    game_map.your_segments += s.size_unit
                     for i in game_map.your_tiles:
                         if i.body.colliderect(s.body):
                             i.unit_num = s.size_unit
@@ -251,10 +278,12 @@ class start_button():
                     print(i.unit_num, end='')
                     if index%10 == 9:
                         print()
-                random_placement(ships_set, game_map.enemy_tiles)
+                random_placement(ships_set, game_map)
                 
         pygame.draw.rect(SCREEN, 'orange', self.body)
         SCREEN.blit(self.text, self.text_rect)
+        print(game_map.enemy_segments)
+        print(game_map.your_segments)
 
         
                         
@@ -279,16 +308,23 @@ while True:
             sys.exit()
 
         SCREEN.fill(base_color)
-        game_map.interact()
+        msg = game_map.interact()
         game_map.draw_map()
-
 
         for s in ships:
             s.interact(event, game_map)
             s.draw()
+        if msg != None:
+            game_map.change_state()
+            info.hit_msg(msg[0], msg[1])
 
         start_button().interact(game_map)
         info.draw()
+        msg = game_map.ending() # TO DO because I'm using unit sizes that aren't equal to amount of squeres i get nonsense
+        if msg != None:
+            info.hit_msg(msg, "green")
+            time.sleep(5)
+            pygame.quit()
         #info.hit_mess('HIT!!!')
         #info.hit_mess('MISS!!!')
         #info.hit_mess('YOU WIN!!!')
