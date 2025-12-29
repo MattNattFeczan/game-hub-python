@@ -2,6 +2,7 @@ import pygame
 import sys
 import random
 import time
+import bisect
 
 pygame.init()
 FPS = 60
@@ -72,6 +73,113 @@ def right_message():
     SCREEN.blit(surface, (WIDTH//6, HEIGHT//6))          
                
 #END OF UTILITY FUNCTIONS
+
+'''---------------------------------BOT-----------------------------------------------'''
+class Bot:
+    def __init__(self):
+        self.plansza=[[0]*10 for i in range(10)] #0 gdy pole nieodkryte -1 gdy pudlo -2 gdy trafiony 
+        self.pozostale_statki=[0, 4, 3, 2, 1, 0] # indeks to dlugosc, wartosc to liczba pozostalych statkow o danej dlugosci
+        self.statek=[] #posortowane wspolrzedne trafionych pol konkretnego statku, ktory nalezy dobic
+        self.ktory=0
+        self.trafione_pola=0 #ile zatopionych pol
+        self.sprawdz_obok_x=[1,-1,0,0]
+        self.sprawdz_obok_y=[0,0,1,-1]
+        
+    def reset(self):
+        self.plansza=[[0]*10 for i in range(10)] 
+        self.pozostale_statki=[0, 4, 3, 2, 1, 0]
+        self.statek=[]
+        self.ktory=0
+        self.trafione_pola=0
+        self.ustaw_statki()
+        
+    def zaktualizuj_pozostale_pola(self):
+        pozostale=[]
+        szachownica=self.czy_zostaly_statki(2)
+        for i in range (10):
+            for j in range (10):
+                if self.plansza[i][j]==0:
+                    if szachownica:
+                        if not (i+j)%2:
+                            pozostale.append((i,j))
+                    else:
+                        pozostale.append((i,j))   
+        if not pozostale: # na wszelki wypadek chociaz to raczej niemozliwe
+            for i in range (10):
+                for j in range (10):
+                    if self.plansza[i][j]==0:
+                        pozostale.append((i,j))
+        return pozostale
+
+    def czy_zostaly_statki(self, od): #czy sa jeszcze jakies statki dluzsze lub rowne od
+        for i in range (od, 6):
+            if(self.pozostale_statki[i]):
+                return True
+        return False  
+        
+    def zatop(self):
+        x_pocz, y_pocz=self.statek[0]
+        x_kon, y_kon=self.statek[-1]
+        for i in range(x_pocz-1, x_kon+2):
+            for j in range(y_pocz-1, y_kon+2):
+                if -1<i<10 and -1<j<10:
+                    if self.plansza[i][j]!=-2:
+                        self.plansza[i][j]=-1
+
+    def kontynuuj(self): #jesli trafiony strzelaj dalej
+        if len(self.statek)==1:
+            i,j=self.statek[0]
+            while self.ktory<4:
+                test_i=i+self.sprawdz_obok_x[self.ktory]
+                test_j=j+self.sprawdz_obok_y[self.ktory] 
+                self.ktory+=1
+                if -1<test_i<10 and -1<test_j<10 and self.plansza[test_i][test_j]==0:
+                    return test_i, test_j  
+            return None, None
+        else:
+            x_pocz, y_pocz=self.statek[0]
+            x_kon, y_kon=self.statek[-1]
+            if x_pocz-x_kon==0:
+                if y_pocz-1>-1 and self.plansza[x_pocz][y_pocz-1]==0:
+                    return x_pocz, y_pocz-1
+                elif y_kon+1<10 and self.plansza[x_pocz][y_kon+1]==0:
+                    return x_pocz, y_kon+1
+            elif y_pocz-y_kon==0:
+                if x_pocz-1>-1 and self.plansza[x_pocz-1][y_pocz]==0:
+                    return x_pocz-1, y_pocz
+                elif x_kon+1<10 and self.plansza[x_kon+1][y_pocz]==0:
+                    return x_kon+1, y_pocz
+            return None, None
+
+    def shoot(self):
+        losowanie=self.zaktualizuj_pozostale_pola() #czy moze byc puste?
+        i,j=(None, None)
+        if self.statek:
+            i,j=self.kontynuuj()
+        if i is None: #jesli zamiast if wstawic else nie sprawdzalby czy kontynuuj zwrocilo none
+            self.ktory=0
+            self.statek=[]
+            if not losowanie: 
+                print('brak wolnych pol', file=sys.stderr)
+                return 0
+            i,j=random.choice(losowanie)
+        return i*10+j
+            
+            
+    def deal_with_it(self, trafiony, x, y): #trafiony powinno byc rowne dlugosci trafionego statku
+        if not trafiony:
+            self.plansza[x][y]=-1
+        else:
+            self.ktory=0
+            self.trafione_pola+=1
+            self.plansza[x][y]=-2
+            bisect.insort(self.statek, (x, y))
+            if len(self.statek)==trafiony or not self.czy_zostaly_statki(len(self.statek)+1):
+                self.zatop()
+                self.pozostale_statki[len(self.statek)]-=1
+                self.statek=[]
+                #print('trafiony zatopiony')
+'''------------------------------------------------------------------------------'''               
 
 class info: #correct
     def __init__(self):
@@ -266,7 +374,8 @@ class g_map():
                     self.change_state()
                     break
         else:
-            position = int(input()) #bot should return position
+            position = bot.shoot() #bot should return position- what he should do and what he actually does are two different things...
+            bot.deal_with_it(game_map.your_tiles[position].size_unit, position//10, position%10) #gdyby nie dzialalo to pewnie wina zamienionych indeksow
             ret = self.your_tiles[position].set_tile()
             self.change_state()
             
@@ -409,6 +518,7 @@ class ship():
 game_map = g_map()
 info_i = info()
 inner_clock = 0
+bot=Bot()
 #GAME LOOP
 while True:
     msg = None
