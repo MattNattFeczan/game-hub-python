@@ -20,21 +20,31 @@ def deltas():
 
 class Button():
 
-    def __init__(self, game, i, j, image_normal, image_flag, image_question, image_v, image_kabum):
+    def __init__(self, game, i, j, image_normal, image_flag, image_question, image_v, image_kabum, image_mine, image_blank, image_check, width=40, height=40, override_x=None, override_y=None):
     
         self.game = game
         self.i = i
         self.j = j
-    
-        self.x = 50 + (i*50)
-        self.y = 50 + (j*50)
+        
+        if override_x is not None and override_y is not None:
+            self.x = override_x
+            self.y = override_y
+        else:
+            # Tu uwaga: jeśli przyciski mają 40px, to mnożnik też powinien być 40 (chyba że chcesz przerwy)
+            self.x = 50 + (i * 50) 
+            self.y = 50 + (j * 50)
+
         self.image_v = image_v
+        self.image_blank = image_blank
         self.image = image_normal
         self.image_flag = image_flag
         self.image_question = image_question
         self.image_kabum = image_kabum
-        self.rect = self.image.get_rect()
-        self.rect.topleft = (self.x, self.y)
+        self.image_mine = image_mine
+        self.image_check = image_check
+        #self.rect = self.image.get_rect()
+        #self.rect.topleft = (self.x, self.y)
+        self.rect = pygame.Rect(self.x, self.y, width, height)
         self.clicked = False
         self.is_mine = False
         self.mines_around = 0
@@ -44,6 +54,7 @@ class Button():
         self.is_question_mark = False
         self.is_kabum = False
         self.mines_around = 0
+        self.is_check = False
         
     
     def draw(self):
@@ -57,9 +68,13 @@ class Button():
         
         elif self.is_visited:
         
-            self.game.screen.blit(self.image_v, (self.rect.x, self.rect.y))
-            text = self.game.font.render(str(self.mines_around), True, (0, 0, 0))
-            self.game.screen.blit(text, (self.rect.x, self.rect.y))
+            if self.mines_around!=0:
+                self.game.screen.blit(self.image_v, (self.rect.x, self.rect.y))
+                text = self.game.font.render(str(self.mines_around), True, (0, 0, 0))
+                self.game.screen.blit(text, (self.rect.x+8, self.rect.y+3))
+                
+            else:
+                self.game.screen.blit(self.image_blank, (self.rect.x, self.rect.y))
             
             
         elif self.is_question_mark:
@@ -74,16 +89,33 @@ class Button():
             #text = self.game.font.render(str("-1"), True, (0, 0, 0))
             #self.game.screen.blit(text, (self.rect.x, self.rect.y))
             
+        elif self.is_mine and self.game.przegrana and not self.is_kabum:
+            
+            self.game.screen.blit(self.image_v, (self.rect.x, self.rect.y))
+            self.game.screen.blit(self.image_mine, (self.rect.x, self.rect.y))
+            
+            
+        elif self.is_check:
+        
+            self.game.screen.blit(self.image_check, (self.rect.x, self.rect.y))
+            
             
         
         
     def check_event(self):
+    
         pos = pygame.mouse.get_pos()
 
         if self.rect.collidepoint(pos):
         
+            if pygame.mouse.get_pressed()[0] and self.is_check:
+            
+                #print("sprawdz")
+                
+                self.game.Check()
         
-            if pygame.mouse.get_pressed()[0] and self.is_visited:
+        
+            elif pygame.mouse.get_pressed()[0] and self.is_visited:
                 
                 count_mines = 0;
                 
@@ -103,7 +135,7 @@ class Button():
                     
                     self.is_visited = False
                     
-                    print("aaa")
+                   # print("aaa")
                     
                     self.game.Dfs(self.i, self.j)
             
@@ -147,6 +179,7 @@ class Button():
             elif pygame.mouse.get_pressed()[0] and not self.is_flagged and self.is_mine:
                 
                 self.is_kabum = True
+                self.game.przegrana = True
                         
 
 class Game():
@@ -165,49 +198,83 @@ class Game():
     flaga_png = pygame.image.load('pixil-frame-0(2).png').convert_alpha()
     question_png = pygame.image.load('pixil-frame-0(1).png').convert_alpha()
     kabum_png = pygame.image.load('pixil-frame-0(4).png').convert_alpha()
+    mine_png = pygame.image.load('pixil-frame-0(3).png').convert_alpha()
+    check_png = pygame.image.load('pixil-frame-0(6).png').convert_alpha()
     
     #przycisk_png = pygame.Surface((40, 40))
     
     font = pygame.font.SysFont(None, 48)
     przycisk_v = pygame.Surface((40, 40))
+    przycisk_blank = pygame.Surface((40,40))
 
     
     przycisk_v.fill((200, 200, 200))
+    przycisk_blank.fill((140, 170, 180))
     
-    #przycisk = Button(10, 10, przycisk_png, przycisk_ciemny_png)
-    buttons_list = []
-    rows = 16
-    columns = 16
-    number_of_mines = 40
-    mines_on_tab = 0
-    tab = []
-    
-    przegrana = False
+    def __init__(self):
+        # Inicjalizacja zmiennych dla tej konkretnej gry
+        self.buttons_list = []
+        self.tab = []
+        self.rows = 10
+        self.columns = 10
+        self.number_of_mines = 15
+        self.mines_on_tab = 0
+        self.przegrana = False
+        self.button_check = Button(
+            self, 0, 0, 
+            self.przycisk_png, self.flaga_png, self.question_png, self.przycisk_v, self.kabum_png, self.mine_png, self.przycisk_blank, self.check_png,
+            width=160,       # Nowa szerokość
+            height=80,       # Nowa wysokość
+            override_x=500,  # Dokładna pozycja X w oknie
+            override_y=800    # Dokładna pozycja Y w oknie
+        )
+        self.button_check.is_check = True
+        self.button_check.is_check = True
+        print("Stworzono button_check")
     
     def mainLoop(self):
     
         running = True
+        
         while running:
-             for event in pygame.event.get():
+        
+            if not self.przegrana:
+        
+                for event in pygame.event.get():
+                 
+                   if event.type == pygame.QUIT:
+                         
+                         running = False
+                         
+                for button in self.buttons_list:
+                    
+                   button.check_event()
+                    
+                         
+                self.screen.fill((30, 30, 30))
+                     
+                for button in self.buttons_list:
+                
+                    button.draw()
+                    
+                self.button_check.draw()
+                
+                self.button_check.check_event()  # <--- WAŻNE: Dodaj to, żeby klikał
+                    
+            else:
              
-                 if event.type == pygame.QUIT:
-                     
-                     running = False
-                     
-             for button in self.buttons_list:
-                
-                button.check_event()
-                
-                     
-             self.screen.fill((30, 30, 30))
+                for event in pygame.event.get():
                  
-             for button in self.buttons_list:
-                 button.draw()
+                   if event.type == pygame.QUIT:
+                         
+                         running = False
+                         
+                self.Reveal()
+                         
+                #print("koniec")
                  
-           
-                 
-             pygame.display.flip()
-             pygame.time.wait(10)  # 10ms
+            pygame.display.flip()
+            pygame.time.wait(10)  # 10ms
 
     def CreateButtons(self):
     
@@ -217,11 +284,12 @@ class Game():
 
             for j in range(self.rows):
                 
-                new_button = Button(self, i, j, self.przycisk_png, self.flaga_png, self.question_png, self.przycisk_v, self.kabum_png)
+                new_button = Button(self, i, j, self.przycisk_png, self.flaga_png, self.question_png, self.przycisk_v, self.kabum_png, self.mine_png, self.przycisk_blank, self.check_png, width=40, height=40, override_x=None, override_y=None)
                 self.buttons_list.append(new_button)
                 row.append(new_button)
 
             self.tab.append(row)
+            
     
     def InitializeRandom(self, i, j):
     
@@ -271,6 +339,12 @@ class Game():
                 #print("wyjechalo")
                 return
                 
+            if self.tab[x][y].is_flagged != self.tab[x][y].is_mine:
+                self.przegrana = True
+                self.is_visited = True
+                print("Aaaaa")
+                return
+                
             #czy jest mina   
             if self.tab[x][y].is_mine == True:
             
@@ -283,6 +357,8 @@ class Game():
                 #print("bylo")
                 
                 return
+                
+            
             
             
             self.tab[x][y].is_visited = True
@@ -290,11 +366,8 @@ class Game():
             if self.tab[x][y].mines_around == 0 or self.tab[x][y].mines_around == self.tab[x][y].mines_around_flagged:
                 for dx, dy in deltas():
                     # Wywołujemy rekurencyjnie dla sąsiadów
-                    if self.tab[x][y].is_flagged and not self.tab[x][y].is_mine:
-                        self.przegrana = True
-                        print("Aaaaa")
                         
-                    elif not self.tab[x][y].is_mine:
+                    if not self.tab[x][y].is_mine:
                         self.Dfs(x + dx, y + dy)
                     
                         
@@ -311,6 +384,45 @@ class Game():
         self.InitializeRandom(i, j)
 
         self.CountMines()
+        
+    def Reveal(self):
+    
+        for button in self.buttons_list:
+            print("AAAA")
+            button.draw()
+            
+    def Check(self):
+    
+        count_flags = 0
+    
+        for button in self.buttons_list:
+        
+            if button.is_flagged:
+                
+                count_flags+=1
+            
+        #print(count_flags)
+    
+        if count_flags == self.number_of_mines:
+        
+            #print(count_flags)
+        
+            for button in self.buttons_list:
+            
+                if button.is_mine and not button.is_flagged:
+                
+                    print("źle")
+                    
+                    self.przegrana = True
+                    
+                    self.Reveal()
+                    
+            if not self.przegrana:
+            
+                print("dobrze!")
+                    
+            
+                
                
 game = Game()
 game.CreateButtons()
