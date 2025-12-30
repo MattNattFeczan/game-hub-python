@@ -40,8 +40,9 @@ def button(msg, size, x, y, width, height, color):
 
     return pygame.Rect(x, y, width, height)
 
-def restart(game_map):
+def restart(game_map, bot):
         game_map.ships.clear()
+        bot.reset()
         global play
         play = False
         global state
@@ -70,7 +71,25 @@ def right_message():
             y += w_height+height*0.05
         surface.blit(text_surface, (x, y))
         x += w_width + space_w
-    SCREEN.blit(surface, (WIDTH//6, HEIGHT//6))          
+    SCREEN.blit(surface, (WIDTH//6, HEIGHT//6))
+
+def isnt_touching(tile_array, index) -> bool:
+    base_index= index-10 #debatable decision
+    for r in range(0, 3):
+        index = base_index+10*r
+        comp = index%10
+        if index < 0:
+            continue
+        if index > 99:
+            continue
+        if tile_array[index].unit_num != 0:
+            return False
+        if 0 < comp and tile_array[index-1].unit_num != 0:
+            return False
+        if comp < 9 and tile_array[index+1].unit_num != 0:
+            return False
+    return True
+        
                
 #END OF UTILITY FUNCTIONS
 
@@ -78,7 +97,7 @@ def right_message():
 class Bot:
     def __init__(self):
         self.plansza=[[0]*10 for i in range(10)] #0 gdy pole nieodkryte -1 gdy pudlo -2 gdy trafiony 
-        self.pozostale_statki=[0, 4, 3, 2, 1, 0] # indeks to dlugosc, wartosc to liczba pozostalych statkow o danej dlugosci
+        self.pozostale_statki=[0, 3, 3, 3, 0, 0] # indeks to dlugosc, wartosc to liczba pozostalych statkow o danej dlugosci
         self.statek=[] #posortowane wspolrzedne trafionych pol konkretnego statku, ktory nalezy dobic
         self.ktory=0
         self.trafione_pola=0 #ile zatopionych pol
@@ -87,11 +106,10 @@ class Bot:
         
     def reset(self):
         self.plansza=[[0]*10 for i in range(10)] 
-        self.pozostale_statki=[0, 4, 3, 2, 1, 0]
+        self.pozostale_statki=[0, 3, 3, 3, 0, 0]
         self.statek=[]
         self.ktory=0
         self.trafione_pola=0
-        self.ustaw_statki()
         
     def zaktualizuj_pozostale_pola(self):
         pozostale=[]
@@ -364,7 +382,7 @@ class g_map():
         for s in self.ships:
             s.interact(event, game_map)
         ret = None
-        print(self.game_state)
+        #print(self.game_state)
         if self.game_state == None:
             return
         elif self.game_state == 'player': 
@@ -375,7 +393,7 @@ class g_map():
                     break
         else:
             position = bot.shoot() #bot should return position- what he should do and what he actually does are two different things...
-            bot.deal_with_it(game_map.your_tiles[position].size_unit, position//10, position%10) #gdyby nie dzialalo to pewnie wina zamienionych indeksow
+            bot.deal_with_it(self.your_tiles[position].unit_num, position//10, position%10) #gdyby nie dzialalo to pewnie wina zamienionych indeksow
             ret = self.your_tiles[position].set_tile()
             self.change_state()
             
@@ -414,7 +432,8 @@ class g_map():
                 if not rotation and placement%10 < (11 - ii): 
                     j = ii
                     while j > 0:
-                        if self.enemy_tiles[placement + j-1].unit_num != 0:
+                        if isnt_touching(self.enemy_tiles, placement+j-1) == False:
+                        #if self.enemy_tiles[placement + j-1].unit_num != 0:
                             no = True
                             break
                         j-=1
@@ -429,7 +448,8 @@ class g_map():
                 if rotation and placement < 99 - 10*ii:
                     j = ii
                     while j > 0:
-                        if self.enemy_tiles[placement + 10*(j-1)].unit_num != 0:
+                        if isnt_touching(self.enemy_tiles, placement + 10*(j-1)) == False:
+                        #if self.enemy_tiles[placement + 10*(j-1)].unit_num != 0:
                             no = True
                             break
                         j-=1
@@ -499,13 +519,15 @@ class ship():
                             self.body.x = i.body.x+convert(14, 'H')
                             self.body.y = i.body.y+convert(14, 'H')
                             self.collides = True
-                            return;
+                            return
                     elif i.body.colliderect(self.body) and self.rotation:
                         if (self.size_unit == 2 and index < 90) or (self.size_unit == 3 and index < 80):
                             self.body.x = i.body.x+convert(14, 'H')
                             self.body.y = i.body.y+convert(14, 'H')
                             self.collides = True
                             return
+                 
+                        
                 self.body.x = self.befx
                 self.body.y = self.befy
                 self.collides = False
@@ -522,7 +544,7 @@ bot=Bot()
 #GAME LOOP
 while True:
     msg = None
-    for event in pygame.event.get(): #if you put and ship and take it away you can start playing
+    for event in pygame.event.get(): 
         if event.type == pygame.QUIT:
             pygame.quit()
             sys.exit()
@@ -536,7 +558,7 @@ while True:
     msg = game_map.ending()
     if msg != None:
         if info_i.fin_msg(msg, "green") == 'restart':
-            restart(game_map)
+            restart(game_map, bot)
             game_map = g_map()
     #info_i.fin_msg("YOU WIN!!", "green")                
     pygame.display.flip()
