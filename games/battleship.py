@@ -262,6 +262,8 @@ class info: #correct
         SCREEN.blit(surface, mid_pos_1)
         SCREEN.blit(text, mid_pos_2)
         if self.clock == 0:
+            '''global msg
+            msg=None sie nie kompiluje, jesli to widzisz przepraszam z calego serca za te wiszace komunikaty'''
             self.message = None
             self.last_state = None
         
@@ -309,22 +311,22 @@ class tile():
         self.surface.fill(self.color) # we have problem here it makes it so that marking isn't permament
         SCREEN.blit(self.surface, self.body)
         pygame.draw.rect(SCREEN, (0, 0, 0), [self.x+3, self.y+3, self.width-6, self.height-6], width=3)
-    def interact(self, g_state):
+    def interact(self, g_state, event):
         if self.state != g_state:
             mouse = pygame.mouse.get_pos()
             if not self.clicked:
                 self.color = self.colors['normal'] 
-            if self.body.collidepoint(mouse) and not self.clicked:
-                if pygame.mouse.get_pressed(num_buttons=3)[0]:
-                    self.clicked = True
-                    if self.unit_num != 0:
-                        self.color = self.colors['hit']
-                        return ('HIT!!!', self.state, 1)
+                if self.body.collidepoint(mouse):
+                    if event.type==pygame.MOUSEBUTTONDOWN and event.button==1:
+                        self.clicked = True
+                        if self.unit_num != 0:
+                            self.color = self.colors['hit']
+                            return ('HIT!!!', self.state, 1)
+                        else:
+                            self.color = self.colors['miss']
+                            return ('MISS!!!', self.state, 0)
                     else:
-                        self.color = self.colors['miss']
-                        return ('MISS!!!', self.state, 0)
-                elif self.body.collidepoint(mouse):
-                    self.color = self.colors['hover']
+                        self.color = self.colors['hover']
         return None
     def set_tile(self):
         if self.unit_num == 0:
@@ -347,6 +349,7 @@ class g_map():
         self.ships_set = [1, 1, 1, 2, 2, 2, 3, 3, 3]
         self.ships = []
         self.waves=[(random.randint(0, WIDTH), random.randint(0, HEIGHT)) for i in range (70)]
+        self.bot_thought_process=0
         x = 0
         y = convert(166, 'H')
         for i in range(1, 101):
@@ -380,34 +383,43 @@ class g_map():
             self.game_state = 'enemy'
         else:
             self.game_state = 'player'
-    def interact(self):
+    def player_interact(self, mouse_event):
         global shake
         for s in self.ships:
-            s.interact(event, game_map)
+            s.interact(mouse_event, game_map)
         ret = None
         #print(self.game_state)
         if self.game_state == None:
             return
         elif self.game_state == 'player': 
             for tile in self.enemy_tiles:
-                ret = tile.interact(self.game_state)
+                ret = tile.interact(self.game_state, mouse_event)
                 if ret != None:
-                    self.change_state()
-                    break
-        else:
-            position = bot.shoot() #bot should return position- what he should do and what he actually does are two different things...
-            bot.deal_with_it(self.your_tiles[position].unit_num, position//10, position%10) #gdyby nie dzialalo to pewnie wina zamienionych indeksow
-            ret = self.your_tiles[position].set_tile()
-            self.change_state()
-            
-        if ret == None:
-            return ret
-        if ret[1] == 'player' and ret[2] == 1:
-            shake=20
-            self.your_hits += 1
-        elif ret[1] == 'enemy' and ret[2] == 1:
-            shake=20
-            self.enemy_hits += 1
+                    if ret[2]==1:
+                        self.enemy_hits+=1
+                        shake=20
+                    else:
+                        self.change_state()
+                        self.bot_thought_process=60
+                    return ret
+        return ret
+        
+    def bot_interact(self):
+        global shake
+        ret=None
+        if self.game_state=='enemy':
+            if self.bot_thought_process>0:
+                self.bot_thought_process-=1
+            else:
+                position = bot.shoot() #bot should return position- what he should do and what he actually does are two different things...
+                bot.deal_with_it(self.your_tiles[position].unit_num, position//10, position%10) #gdyby nie dzialalo to pewnie wina zamienionych indeksow
+                ret = self.your_tiles[position].set_tile()
+                if ret[2]==1:
+                    self.your_hits+=1
+                    self.bot_thought_process=60
+                    shake=20
+                else:
+                    self.change_state() 
         return ret
 
     def draw_map(self):
@@ -556,21 +568,30 @@ info_i = info()
 inner_clock = 0
 bot=Bot()
 #GAME LOOP
+msg=None
 while True:
-    msg = None
-    for event in pygame.event.get(): 
+    #msg = None
+    ended = game_map.ending()
+    events=pygame.event.get()
+    for event in events: 
         if event.type == pygame.QUIT:
             pygame.quit()
             sys.exit()
-        msg = game_map.interact()
-                
+        if not game_map.game_state=='enemy' and ended is None:
+            player_msg = game_map.player_interact(event)
+            if player_msg is not None:
+                msg=player_msg
+    if game_map.game_state=='enemy' and ended is None:
+        bot_msg=game_map.bot_interact()
+        if bot_msg is not None:
+                msg=bot_msg
     game_map.draw_map()
     info_i.start_button(game_map)
     right_message()
     #game_map.change_state(msg)
     info_i.hit_msg(msg)
-    msg = game_map.ending()
-    if msg != None:
+    
+    if ended != None:
         if info_i.fin_msg(msg, "green") == 'restart':
             restart(game_map, bot)
             game_map = g_map()
