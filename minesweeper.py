@@ -20,7 +20,7 @@ def deltas():
 
 class Button():
 
-    def __init__(self, game, i, j, image_normal, image_dark):
+    def __init__(self, game, i, j, image_normal, image_flag, image_question, image_v, image_kabum):
     
         self.game = game
         self.i = i
@@ -28,17 +28,21 @@ class Button():
     
         self.x = 50 + (i*50)
         self.y = 50 + (j*50)
-    
-        self.image1 = image_normal
-        self.image2 = image_dark
+        self.image_v = image_v
         self.image = image_normal
+        self.image_flag = image_flag
+        self.image_question = image_question
+        self.image_kabum = image_kabum
         self.rect = self.image.get_rect()
         self.rect.topleft = (self.x, self.y)
         self.clicked = False
         self.is_mine = False
         self.mines_around = 0
+        self.mines_around_flagged = 0
         self.is_visited = False
         self.is_flagged = False
+        self.is_question_mark = False
+        self.is_kabum = False
         self.mines_around = 0
         
     
@@ -46,38 +50,110 @@ class Button():
     
         self.game.screen.blit(self.image, (self.rect.x, self.rect.y))
         
-        if self.is_visited:
         
+        if self.is_kabum:
+        
+            self.game.screen.blit(self.image_kabum, (self.rect.x, self.rect.y))
+        
+        elif self.is_visited:
+        
+            self.game.screen.blit(self.image_v, (self.rect.x, self.rect.y))
             text = self.game.font.render(str(self.mines_around), True, (0, 0, 0))
             self.game.screen.blit(text, (self.rect.x, self.rect.y))
+            
+            
+        elif self.is_question_mark:
+        
+            self.game.screen.blit(self.image_question, (self.rect.x, self.rect.y))
+            #text = self.game.font.render(str("?"), True, (0, 0, 0))
+            #self.game.screen.blit(text, (self.rect.x, self.rect.y))
+            
+        elif self.is_flagged:
+        
+            self.game.screen.blit(self.image_flag, (self.rect.x, self.rect.y))
+            #text = self.game.font.render(str("-1"), True, (0, 0, 0))
+            #self.game.screen.blit(text, (self.rect.x, self.rect.y))
+            
             
         
         
     def check_event(self):
-        
-        
-        #mouse position
         pos = pygame.mouse.get_pos()
-        
-        #check if the mouse is pointing on the buttons
-        
+
         if self.rect.collidepoint(pos):
         
-            if pygame.mouse.get_pressed()[0] == 1 and self.clicked == False:
+        
+            if pygame.mouse.get_pressed()[0] and self.is_visited:
+                
+                count_mines = 0;
+                
+                delta = deltas()
+                
+                for dx, dy in delta:
+                
+                    if 0 <= self.i+dx < self.game.columns and 0 <= self.j + dy < self.game.rows:
+                        if self.game.tab[self.i+dx][self.j+dy].is_flagged:
+                            count_mines+=1    
+                        
+                self.mines_around_flagged = count_mines
+                        
+                if count_mines == self.mines_around:
+                    
+                    #tutaj dfs
+                    
+                    self.is_visited = False
+                    
+                    print("aaa")
+                    
+                    self.game.Dfs(self.i, self.j)
             
+            # --- LEWY PRZYCISK (Odkrywanie) ---
+            # Dodajemy warunek: nie można odkryć, jeśli jest flaga! (zasada sapera)
+            elif pygame.mouse.get_pressed()[0] == 1 and not self.clicked and not self.is_flagged:
                 self.clicked = True
+                self.is_question_mark = False # Kasujemy znak zapytania przy odkryciu
                 
                 self.game.FirstClick(self.i, self.j)
-                
                 self.game.Dfs(self.i, self.j)
 
-
+            # --- PRAWY PRZYCISK (Flagowanie) ---
+            # Ważne: To zadziała poprawnie tylko jeśli używasz events (MOUSEBUTTONDOWN)
+            # Jeśli używasz get_pressed(), to będzie "mrugać" i zmieniać się bardzo szybko.
+            elif pygame.mouse.get_pressed()[2] and not self.is_visited: # Używamy ELIF żeby nie klikać obu naraz
+                
+                # Tworzymy cykl: Puste -> Flaga -> Znak zapytania -> Puste
+                
+                if not self.is_flagged and not self.is_question_mark:
+                    # Stan 1: Było puste -> Robimy Flagę
+                    self.is_flagged = True
+                    self.is_question_mark = False
+                    
+                elif self.is_flagged:
+                    # Stan 2: Była Flaga -> Robimy Znak zapytania
+                    self.is_flagged = False
+                    self.is_question_mark = True
+                    
+                elif self.is_question_mark:
+                    # Stan 3: Był Znak -> Czyścimy wszystko
+                    self.is_flagged = False
+                    self.is_question_mark = False
+                
+                # Tutaj przydałoby się małe opóźnienie (sleep) albo flaga blokująca,
+                # bo get_pressed() wykona to 10 razy w ciągu jednego kliknięcia.
+                pygame.time.delay(150) # BRZYDKI SPOSÓB, ale zadziała "na szybko"
+                
+                    
+                    
+            elif pygame.mouse.get_pressed()[0] and not self.is_flagged and self.is_mine:
+                
+                self.is_kabum = True
+                        
 
 class Game():
 
     first_click = False
-    SCREEN_HEIGHT = 500
-    SCREEN_WIDTH = 800
+    SCREEN_HEIGHT = 1000
+    SCREEN_WIDTH = 1000
 
     screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT));
 
@@ -85,22 +161,28 @@ class Game():
 
     #button class
 
-    #przycisk_png = pygame.image.load('button.png').convert_alpha()
-
-    przycisk_png = pygame.Surface((40, 40))
-    przycisk_ciemny_png = pygame.Surface((40, 40))
+    przycisk_png = pygame.image.load('pixil-frame-0.png').convert_alpha()
+    flaga_png = pygame.image.load('pixil-frame-0(2).png').convert_alpha()
+    question_png = pygame.image.load('pixil-frame-0(1).png').convert_alpha()
+    kabum_png = pygame.image.load('pixil-frame-0(4).png').convert_alpha()
+    
+    #przycisk_png = pygame.Surface((40, 40))
+    
     font = pygame.font.SysFont(None, 48)
+    przycisk_v = pygame.Surface((40, 40))
 
-    przycisk_png.fill((0, 200, 100)) # Kolor zielony
-    przycisk_ciemny_png.fill((0, 255, 40))
+    
+    przycisk_v.fill((200, 200, 200))
     
     #przycisk = Button(10, 10, przycisk_png, przycisk_ciemny_png)
     buttons_list = []
-    rows = 8
-    columns = 5
-    number_of_mines = 5
+    rows = 16
+    columns = 16
+    number_of_mines = 40
     mines_on_tab = 0
     tab = []
+    
+    przegrana = False
     
     def mainLoop(self):
     
@@ -135,13 +217,13 @@ class Game():
 
             for j in range(self.rows):
                 
-                new_button = Button(self, i, j, self.przycisk_png, self.przycisk_ciemny_png)
+                new_button = Button(self, i, j, self.przycisk_png, self.flaga_png, self.question_png, self.przycisk_v, self.kabum_png)
                 self.buttons_list.append(new_button)
                 row.append(new_button)
 
             self.tab.append(row)
     
-    def InitializeRandom(self):
+    def InitializeRandom(self, i, j):
     
                     
         ##### USTAWIENIE POZYCJI MIN #################################
@@ -151,10 +233,20 @@ class Game():
             ran_i = random.randint(0, self.columns-1)
             ran_j = random.randint(0, self.rows-1)
             
-            if self.tab[ran_i][ran_j].is_mine == False:
-                self.tab[ran_i][ran_j].is_mine = True
-                self.mines_on_tab += 1
+            deltas_temp = ((-1, -1), (-1, 0), (-1, 1), (0, -1), (0, 1), (1, -1), (1, 0), (1, 1), (0, 0))
+            # Sprawdzamy, czy wylosowane pole koliduje z którymkolwiek przesunięciem
             
+            is_forbidden = any(ran_i == i + dx and ran_j == j + dy for dx, dy in deltas_temp)
+
+            if not is_forbidden:
+                if self.tab[ran_i][ran_j].is_mine == False:
+                    self.tab[ran_i][ran_j].is_mine = True
+                    self.mines_on_tab += 1  
+                                
+                
+                    
+                
+                  
     def CountMines(self):
     
         ###### PRZYPISANIE NUMERÓW W TABLICY #########################
@@ -170,35 +262,44 @@ class Game():
                             
     def Dfs(self, x, y):
     
-        #print(f'dfs: {x} {y}')
-        
-        #czy nie wychodzimy poza zakres tablicy 
-        if x < 0 or x >= self.columns or y < 0 or y >= self.rows:
-        
-            #print("wyjechalo")
-            return
+        if not self.przegrana:
+            #print(f'dfs: {x} {y}')
             
-        #czy jest mina   
-        if self.tab[x][y].is_mine == True:
-        
-            #print("mina")
-            return
-         
-        #czy już jest odsłonięte   
-        if self.tab[x][y].is_visited:
-        
-            #print("bylo")
+            #czy nie wychodzimy poza zakres tablicy 
+            if x < 0 or x >= self.columns or y < 0 or y >= self.rows:
             
-            return
-        
-        
-        self.tab[x][y].is_visited = True
-
-        if self.tab[x][y].mines_around == 0:
-            for dx, dy in deltas():
-                # Wywołujemy rekurencyjnie dla sąsiadów
-                self.Dfs(x + dx, y + dy)
+                #print("wyjechalo")
+                return
                 
+            #czy jest mina   
+            if self.tab[x][y].is_mine == True:
+            
+                #print("mina")
+                return
+             
+            #czy już jest odsłonięte   
+            if self.tab[x][y].is_visited:
+            
+                #print("bylo")
+                
+                return
+            
+            
+            self.tab[x][y].is_visited = True
+
+            if self.tab[x][y].mines_around == 0 or self.tab[x][y].mines_around == self.tab[x][y].mines_around_flagged:
+                for dx, dy in deltas():
+                    # Wywołujemy rekurencyjnie dla sąsiadów
+                    if self.tab[x][y].is_flagged and not self.tab[x][y].is_mine:
+                        self.przegrana = True
+                        print("Aaaaa")
+                        
+                    elif not self.tab[x][y].is_mine:
+                        self.Dfs(x + dx, y + dy)
+                    
+                        
+        else:
+            print("xd")            
                 
     def FirstClick(self, i, j):
     
@@ -207,24 +308,12 @@ class Game():
             
         self.first_click = True
     
-        if self.tab[i][j].is_mine:
-                
-                    ran_i = random.randint(0, self.columns-1)
-                    ran_j = random.randint(0, self.rows-1)
-
-                    while (( ran_i == i and ran_j == j ) or self.tab[ran_i][ran_j].is_mine):
-                        ran_i = random.randint(0, self.game.columns-1)
-                        ran_j = random.randint(0, rows-1)
-                    
-                    
-                    self.is_mine = False
-                    self.tab[ran_i][ran_j].is_mine = True
+        self.InitializeRandom(i, j)
 
         self.CountMines()
                
 game = Game()
 game.CreateButtons()
-game.InitializeRandom()
 ###### GŁÓWNA PĘTLA GRY ####################################
 game.mainLoop()
 
