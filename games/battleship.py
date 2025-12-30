@@ -19,6 +19,7 @@ info_color = (138,161,185)
 collides_with = None
 play = False
 state = 'None'
+shake=0
 
 #UTILITY FUNCTIONS
 
@@ -345,6 +346,7 @@ class g_map():
         self.game_state = None
         self.ships_set = [1, 1, 1, 2, 2, 2, 3, 3, 3]
         self.ships = []
+        self.waves=[(random.randint(0, WIDTH), random.randint(0, HEIGHT)) for i in range (70)]
         x = 0
         y = convert(166, 'H')
         for i in range(1, 101):
@@ -379,6 +381,7 @@ class g_map():
         else:
             self.game_state = 'player'
     def interact(self):
+        global shake
         for s in self.ships:
             s.interact(event, game_map)
         ret = None
@@ -400,13 +403,24 @@ class g_map():
         if ret == None:
             return ret
         if ret[1] == 'player' and ret[2] == 1:
+            shake=20
             self.your_hits += 1
         elif ret[1] == 'enemy' and ret[2] == 1:
+            shake=20
             self.enemy_hits += 1
         return ret
 
     def draw_map(self):
+        global shake
+        shift_x=0
+        shift_y=0
         SCREEN.fill(base_color)
+        if shake>0:
+            shift_x=random.randint(-10,10)
+            shift_y=random.randint(-10,10)
+            shake-=1
+        for x, y in self.waves: pygame.draw.line(SCREEN, (150, 190, 200), (x+shift_x, y+shift_y), (x+30+shift_x, y+shift_y), 2)
+        self.waves = [((x + 0.5) % WIDTH, y) for x, y in self.waves]
         for ob in self.enemy_tiles:
             ob.draw()
         for ob in self.your_tiles:
