@@ -99,21 +99,23 @@ class Particle:
 	    self.x=x
 	    self.y=y
 	    self.lifespan=random.randint(60,80)
-	    self.size=random.randint(4,12)
-	    self.movex=random.randint(-2,2)
-	    self.movey=random.randint(-4,-2)
+	    self.size=random.randint(3,9)
+	    self.movex=random.randint(-1,1)
+	    self.movey=random.randint(-2,-1)
     def move_it(self):
 	    self.x=self.x+self.movex+random.randint(-1,1)
 	    self.y=self.y+self.movey+random.randint(-1,1)
 	    if self.lifespan>0:
 	        self.lifespan-=2
 	    if self.size>0:
-	        self.size-=0.2
+	        self.size-=0.1
     def draw(self):
 	    colour=0
 	    if self.lifespan>60:
-	        colour=255, 255, 0, 255
+	        colour=255, 165, 0, 255
 	    elif self.lifespan>50:
+	        colour=255, 255, 0, 255
+	    elif self.lifespan>45:
 	        colour=255, 165, 0, 255
 	    elif self.lifespan>30:
 	        colour=205, 0, 0, 255
