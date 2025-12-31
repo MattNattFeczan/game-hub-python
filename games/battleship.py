@@ -326,7 +326,7 @@ class tile():
         if self.s_list != None:
             if self.s_list[self.s_pos] == 0:
                 self.color = self.colors['sunk']
-        self.surface.fill(self.color) # we have problem here it makes it so that marking isn't permament
+        self.surface.fill(self.color) 
         SCREEN.blit(self.surface, self.body)
         pygame.draw.rect(SCREEN, (0, 0, 0), [self.x+3, self.y+3, self.width-6, self.height-6], width=3)
     def interact(self, g_state, event):
@@ -570,6 +570,7 @@ class ship():
     def interact(self, event, game_map):
         global collides_with
         if play == False:
+            check = False
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 1:
                         if self.body.collidepoint(event.pos):
@@ -596,19 +597,34 @@ class ship():
                            or (self.size_unit == 2 and num not in list_1) or (self.size_unit == 3 and num not in list_2): #to clean up
                             self.body.x = i.body.x+convert(14, 'H')
                             self.body.y = i.body.y+convert(14, 'H')
+                            check = True
                             self.collides = True
-                            return
+                            break
                     elif i.body.colliderect(self.body) and self.rotation:
                         if (self.size_unit == 2 and index < 90) or (self.size_unit == 3 and index < 80):
                             self.body.x = i.body.x+convert(14, 'H')
                             self.body.y = i.body.y+convert(14, 'H')
+                            check = True
                             self.collides = True
-                            return
-                 
+                            break
+                if self.rotation:
+                    width = game_map.your_tiles[0].width*3
+                    height = game_map.your_tiles[0].width*(self.size_unit+2)
+                else:
+                    width =  game_map.your_tiles[0].width*(self.size_unit+2)
+                    height = game_map.your_tiles[0].width*3
+                    
+                collision_detector = pygame.Rect(0, 0, width, height)
+                collision_detector.center = self.body.center
+                #collision_detector = collision_detector.center=(self.body.x + self.body.width//2, self.body.y + self.body.height//2)
+                for s in game_map.ships:
+                    if collision_detector.colliderect(s.body) and s != self:
+                        check = False
                         
-                self.body.x = self.befx
-                self.body.y = self.befy
-                self.collides = False
+                if check == False:
+                    self.body.x = self.befx
+                    self.body.y = self.befy
+                    self.collides = False
 
             if event.type == pygame.MOUSEMOTION:
                 if collides_with == self.number:
