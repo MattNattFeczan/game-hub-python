@@ -265,8 +265,6 @@ class info: #correct
         SCREEN.blit(surface, mid_pos_1)
         SCREEN.blit(text, mid_pos_2)
         if self.clock == 0:
-            '''global msg
-            msg=None sie nie kompiluje, jesli to widzisz przepraszam z calego serca za te wiszace komunikaty'''
             self.message = None
             self.last_state = None
         
@@ -654,8 +652,9 @@ while True:
     game_map.draw_map()
     info_i.start_button(game_map)
     right_message()
-    
-    info_i.hit_msg(msg)    
+    info_i.hit_msg(msg) 
+    if info_i.clock>0:
+        msg=None
     if ended != None:
         if info_i.fin_msg(ended, "green") == 'restart':
             restart(game_map, bot)
