@@ -254,8 +254,11 @@ class info: #correct
         color = "green"
         if state == 'player':
             color = "red"
-        text = pygame.font.SysFont('Arial', convert(100, 'H')).render(msg, True, color)
-        surface = pygame.Surface((convert(1000, 'W'), convert(400, 'H')))#
+        text = pygame.font.SysFont('Arial', convert(100, 'H'))
+        width, height = text.size(msg)
+        text = text.render(msg, True, color)
+
+        surface = pygame.Surface((convert(width*2, 'W'), convert(height*4, 'H')))#
         mid_pos_1 = surface.get_rect(center=(WIDTH//2, HEIGHT//2+clock))
         mid_pos_2 = text.get_rect(center=(WIDTH//2, HEIGHT//2+clock))
         surface.fill(info_color)
