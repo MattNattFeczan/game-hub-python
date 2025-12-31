@@ -374,11 +374,9 @@ class tile():
         SCREEN.blit(self.surface, self.body)
         pygame.draw.rect(SCREEN, (0, 0, 0), [self.x+3, self.y+3, self.width-6, self.height-6], width=3)
         if self.color==self.colors['sunk']: 
-            if self.burning is not None:
-                self.burning.on=False
+            if self.burning is not None: self.burning.on=False
         if self.burning is not None:
-            if not self.burning and not self.burning.particles: 
-                self.burning=None
+            if not self.burning.on and not self.burning.particles: self.burning=None
         if self.burning is not None: self.burning.manage_particles()
     def interact(self, g_state, event):
         if self.state != g_state:
