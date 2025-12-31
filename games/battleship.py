@@ -296,6 +296,8 @@ class tile():
         self.clicked = False
         self.unit_num = 0
         self.state =  tile_state
+        self.s_list = None
+        self.s_pos = 0
         self.colors = {
             'normal': (88,135,183),
             'hover': (219, 145, 140),
@@ -303,10 +305,19 @@ class tile():
             'miss': (255, 75, 0),
             'sunken': (149, 194, 160)
         }
+        self.name = None
         self.color = self.colors['normal']
         self.surface = pygame.Surface((self.width, self.height))
         self.body = pygame.Rect(self.x, self.y, self.width, self.height)
         tile_map.append(self)
+
+    def update_name(self):
+        if self.unit_num == 1:
+            self.name = 'DESTROYER'
+        elif self.unit_num == 2:
+            self.name = 'SUBMARINE'
+        elif self.unit_num == 3:
+            self.name = 'BATTLESHIP'
 
     def draw(self):
         self.surface.fill(self.color) # we have problem here it makes it so that marking isn't permament
@@ -321,8 +332,16 @@ class tile():
                     if event.type==pygame.MOUSEBUTTONDOWN and event.button==1:
                         self.clicked = True
                         if self.unit_num != 0:
+                            print(self.s_list)
+                            if self.s_list[self.s_pos] > 1:
+                                self.s_list[self.s_pos]-=1
+                                msg = 'HIT!!!'
+                            else:
+                                self.s_list[self.s_pos]-=1
+                                msg = self.name + ' SUNKEN!!!'
+                                    
                             self.color = self.colors['hit']
-                            return ('HIT!!!', self.state, 1)
+                            return (msg, self.state, 1)
                         else:
                             self.color = self.colors['miss']
                             return ('MISS!!!', self.state, 0)
@@ -352,6 +371,7 @@ class g_map():
         self.waves=[(random.randint(0, WIDTH), random.randint(0, HEIGHT)) for i in range (70)]
         self.bot_thought_process=0
         self.delay = 0
+        
         x = 0
         y = convert(166, 'H')
         for i in range(1, 101):
@@ -380,7 +400,7 @@ class g_map():
     def start_game(self):
         if self.game_state == None:
             self.game_state = 'player'
-    def change_state(self): #sometimes you get double turn i need to find out why
+    def change_state(self):
         if self.game_state == 'player':
             self.game_state = 'enemy'
         else:
@@ -461,7 +481,7 @@ class g_map():
             return None
     
     def enemy_placement(self):
-        for ii in self.ships_set:
+        for index,ii in enumerate(self.ships_set):
             rotation = random.randint(0,1)
             while True:
                 no = False
@@ -470,7 +490,6 @@ class g_map():
                     j = ii
                     while j > 0:
                         if isnt_touching(self.enemy_tiles, placement+j-1) == False:
-                        #if self.enemy_tiles[placement + j-1].unit_num != 0:
                             no = True
                             break
                         j-=1
@@ -479,6 +498,9 @@ class g_map():
                     j = ii
                     while j > 0:
                         self.enemy_tiles[placement + j-1].unit_num = ii
+                        self.enemy_tiles[placement + j-1].s_list = self.ships_set
+                        self.enemy_tiles[placement + j-1].s_pos = index
+                        self.enemy_tiles[placement + j-1].update_name()
                         j-=1
                     self.enemy_segments += ii
                     break     
@@ -486,7 +508,6 @@ class g_map():
                     j = ii
                     while j > 0:
                         if isnt_touching(self.enemy_tiles, placement + 10*(j-1)) == False:
-                        #if self.enemy_tiles[placement + 10*(j-1)].unit_num != 0:
                             no = True
                             break
                         j-=1
@@ -495,6 +516,9 @@ class g_map():
                     j = ii
                     while j > 0:
                         self.enemy_tiles[placement + 10*(j-1)].unit_num = ii
+                        self.enemy_tiles[placement + 10*(j-1)].s_list = self.ships_set
+                        self.enemy_tiles[placement + 10*(j-1)].s_pos = index
+                        self.enemy_tiles[placement + 10*(j-1)].update_name()
                         j-=1
                     self.enemy_segments += ii
                     break
@@ -517,13 +541,24 @@ class ship():
             width = convert(100, 'H')
         else:
             width = convert(164, 'H')
+        if self.size_unit == 1:
+            self.name = 'destroyer'
+        elif self.size_unit == 2:
+            self.name = 'submarine'
+        else:
+            self.name = 'battleship'
         self.body = pygame.Rect(x, y, width, height)
         self.befx = self.body.x
         self.befy = self.body.y
         self.color = (255, 255, 255)
         self.rotation = 0
+        self.hits = 0
         self.collides = False
         ships.append(self)
+    def sunken(self):
+        if self.hits != self.size_unit:
+            return None
+        return self.name
     def draw(self):
         pygame.draw.rect(SCREEN, self.color, self.body)
     def interact(self, event, game_map):
