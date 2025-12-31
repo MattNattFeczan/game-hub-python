@@ -93,6 +93,51 @@ def isnt_touching(tile_array, index) -> bool:
         
                
 #END OF UTILITY FUNCTIONS
+'''------------------FIRE------------------'''
+class Particle:
+    def __init__(self, x, y):
+	    self.x=x
+	    self.y=y
+	    self.lifespan=random.randint(60,80)
+	    self.size=random.randint(4,12)
+	    self.movex=random.randint(-2,2)
+	    self.movey=random.randint(-4,-2)
+    def move_it(self):
+	    self.x=self.x+self.movex+random.randint(-1,1)
+	    self.y=self.y+self.movey+random.randint(-1,1)
+	    if self.lifespan>0:
+	        self.lifespan-=2
+	    if self.size>0:
+	        self.size-=0.2
+    def draw(self):
+	    colour=0
+	    if self.lifespan>60:
+	        colour=255, 255, 0, 255
+	    elif self.lifespan>50:
+	        colour=255, 165, 0, 255
+	    elif self.lifespan>30:
+	        colour=205, 0, 0, 255
+	    else:
+	        colour=139, 125, 107, 255 #bisque 4
+	    pygame.draw.rect(SCREEN, colour, (self.x, self.y, self.size, self.size))
+	    
+class Fire:
+    def __init__(self, x, y):
+        self.x=x
+        self.y=y
+        self.on=True
+        self.particles=[]
+    def manage_particles(self):
+        if self.on:
+            for i in range(3):
+                self.particles.append(Particle(self.x+random.randint(-10,10),self.y+random.randint(-1,1)))
+        for p in self.particles:
+            if p.lifespan<=0 or p.size<=0:
+                self.particles.remove(p)
+        for p in self.particles:
+            p.draw()
+            p.move_it()
+
 
 '''---------------------------------BOT-----------------------------------------------'''
 class Bot:
@@ -310,6 +355,7 @@ class tile():
         self.color = self.colors['normal']
         self.surface = pygame.Surface((self.width, self.height))
         self.body = pygame.Rect(self.x, self.y, self.width, self.height)
+        self.burning=None
         tile_map.append(self)
 
     def update_name(self):
@@ -327,6 +373,13 @@ class tile():
         self.surface.fill(self.color) 
         SCREEN.blit(self.surface, self.body)
         pygame.draw.rect(SCREEN, (0, 0, 0), [self.x+3, self.y+3, self.width-6, self.height-6], width=3)
+        if self.color==self.colors['sunk']: 
+            if self.burning is not None:
+                self.burning.on=False
+        if self.burning is not None:
+            if not self.burning and not self.burning.particles: 
+                self.burning=None
+        if self.burning is not None: self.burning.manage_particles()
     def interact(self, g_state, event):
         if self.state != g_state:
             mouse = pygame.mouse.get_pos()
@@ -339,6 +392,7 @@ class tile():
                             print(self.s_list)
                             if self.s_list[self.s_pos] > 1:
                                 self.s_list[self.s_pos]-=1
+                                self.burning=Fire(self.x+self.width//2,self.y+self.height//2) #position still needs some work...
                                 msg = 'HIT!!!'
                             else:
                                 self.s_list[self.s_pos]-=1
