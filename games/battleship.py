@@ -239,7 +239,7 @@ class info: #correct
         pygame.draw.rect(SCREEN, info_color, self.body)
         SCREEN.blit(self.text, self.text_rect)
         
-    def hit_msg(self, message): #msg has to be text
+    def hit_msg(self, message):
         if message == None and self.clock != 0:
             msg, state = self.message, self.last_state
             self.clock-=1
@@ -300,7 +300,8 @@ class tile():
             'normal': (88,135,183),
             'hover': (219, 145, 140),
             'hit': (76, 219, 87),
-            'miss': (255, 75, 0)
+            'miss': (255, 75, 0),
+            'sunken': (149, 194, 160)
         }
         self.color = self.colors['normal']
         self.surface = pygame.Surface((self.width, self.height))
@@ -350,6 +351,7 @@ class g_map():
         self.ships = []
         self.waves=[(random.randint(0, WIDTH), random.randint(0, HEIGHT)) for i in range (70)]
         self.bot_thought_process=0
+        self.delay = 0
         x = 0
         y = convert(166, 'H')
         for i in range(1, 101):
@@ -389,9 +391,7 @@ class g_map():
             s.interact(mouse_event, game_map)
         ret = None
         #print(self.game_state)
-        if self.game_state == None:
-            return
-        elif self.game_state == 'player': 
+        if self.game_state == 'player': 
             for tile in self.enemy_tiles:
                 ret = tile.interact(self.game_state, mouse_event)
                 if ret != None:
@@ -399,6 +399,7 @@ class g_map():
                         self.enemy_hits+=1
                         shake=20
                     else:
+                        self.delay = 1
                         self.change_state()
                         self.bot_thought_process=60
                     return ret
@@ -411,8 +412,8 @@ class g_map():
             if self.bot_thought_process>0:
                 self.bot_thought_process-=1
             else:
-                position = bot.shoot() #bot should return position- what he should do and what he actually does are two different things...
-                bot.deal_with_it(self.your_tiles[position].unit_num, position//10, position%10) #gdyby nie dzialalo to pewnie wina zamienionych indeksow
+                position = bot.shoot() 
+                bot.deal_with_it(self.your_tiles[position].unit_num, position//10, position%10)
                 ret = self.your_tiles[position].set_tile()
                 if ret[2]==1:
                     self.your_hits+=1
@@ -421,6 +422,16 @@ class g_map():
                 else:
                     self.change_state() 
         return ret
+
+    def delay_check(self):
+        if self.delay == 0:
+            return True
+        if self.delay == 30:
+            self.delay = 0
+            return False
+        else:
+            self.delay+=1
+            return False
 
     def draw_map(self):
         global shake
@@ -567,8 +578,8 @@ game_map = g_map()
 info_i = info()
 inner_clock = 0
 bot=Bot()
-#GAME LOOP
 msg=None
+#GAME LOOP
 while True:
     #msg = None
     ended = game_map.ending()
@@ -578,23 +589,19 @@ while True:
             pygame.quit()
             sys.exit()
         if not game_map.game_state=='enemy' and ended is None:
-            player_msg = game_map.player_interact(event)
-            if player_msg is not None:
-                msg=player_msg
-    if game_map.game_state=='enemy' and ended is None:
-        bot_msg=game_map.bot_interact()
-        if bot_msg is not None:
-                msg=bot_msg
+            msg = game_map.player_interact(event)
+    if game_map.delay_check():
+        if game_map.game_state=='enemy' and ended is None:
+            msg=game_map.bot_interact()
+            
     game_map.draw_map()
     info_i.start_button(game_map)
     right_message()
-    #game_map.change_state(msg)
-    info_i.hit_msg(msg)
     
+    info_i.hit_msg(msg)    
     if ended != None:
-        if info_i.fin_msg(msg, "green") == 'restart':
+        if info_i.fin_msg(ended, "green") == 'restart':
             restart(game_map, bot)
-            game_map = g_map()
-    #info_i.fin_msg("YOU WIN!!", "green")                
+            game_map = g_map()    
     pygame.display.flip()
     CLOCK.tick(FPS)        
