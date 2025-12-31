@@ -306,7 +306,7 @@ class tile():
             'hover': (219, 145, 140),
             'hit': (76, 219, 87),
             'miss': (255, 75, 0),
-            'sunken': (149, 194, 160)
+            'sunk': (149, 194, 160)
         }
         self.name = None
         self.color = self.colors['normal']
@@ -323,6 +323,9 @@ class tile():
             self.name = 'BATTLESHIP'
 
     def draw(self):
+        if self.s_list != None:
+            if self.s_list[self.s_pos] == 0:
+                self.color = self.colors['sunk']
         self.surface.fill(self.color) # we have problem here it makes it so that marking isn't permament
         SCREEN.blit(self.surface, self.body)
         pygame.draw.rect(SCREEN, (0, 0, 0), [self.x+3, self.y+3, self.width-6, self.height-6], width=3)
@@ -342,7 +345,7 @@ class tile():
                             else:
                                 self.s_list[self.s_pos]-=1
                                 msg = self.name + ' SUNKEN!!!'
-                                    
+
                             self.color = self.colors['hit']
                             return (msg, self.state, 1)
                         else:
