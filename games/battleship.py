@@ -9,7 +9,7 @@ FPS = 60
 CLOCK = pygame.time.Clock()
 WIDTH, HEIGHT = 1920, 1080 #base 2880, 1800
 BASE_WIDTH, BASE_HEIGHT = 2800, 1800
-FLAGS =  pygame.DOUBLEBUF | pygame.RESIZABLE
+FLAGS =  pygame.DOUBLEBUF #| pygame.RESIZABLE
 SCREEN = pygame.display.set_mode((WIDTH, HEIGHT), FLAGS, vsync=1)
 SCREEN.set_alpha(None)
 pygame.display.set_caption("Battleship")
@@ -182,9 +182,10 @@ class Bot:
         self.statek=[] #posortowane wspolrzedne trafionych pol konkretnego statku, ktory nalezy dobic
         self.ktory=0
         self.trafione_pola=0 #ile zatopionych pol
-        self.sprawdz_obok_x=[[1,-1,0,0], [0,0,1,-1], [0,1,0,-1], [0,-1,0,1], [-1,1,0,0], [0,0,-1,1]]
-        self.sprawdz_obok_y=[[0,0,1,-1], [1,-1,0,0], [1,0,-1,0], [1,0,-1,0], [0,0,1,-1],[1,-1,0,0]]
-        self.strategia=random.randint(0,5)
+        self.sprawdz_obok_x=[[1, -1, 0, 0], [0, 0, 1, -1], [0, 1, 0, -1], [0, -1, 0, 1], [-1, 1, 0, 0], [0, 0, -1, 1]]
+        self.sprawdz_obok_y=[[0, 0, 1, -1], [1, -1, 0, 0], [1, 0, -1, 0], [1, 0, -1, 0], [0, 0, 1, -1],[1, -1, 0, 0]]
+        self.strategia=random.randint(0, 5)
+        self.kolor_szachownicy=random.randint(0, 1)
         
     def reset(self):
         self.plansza=[[0]*10 for i in range(10)] 
@@ -192,7 +193,8 @@ class Bot:
         self.statek=[]
         self.ktory=0
         self.trafione_pola=0
-        self.strategia=random.randint(0,5)
+        self.strategia=random.randint(0, 5)
+        self.kolor_szachownicy=random.randint(0, 1)
         
     def zaktualizuj_pozostale_pola(self):
         pozostale=[]
@@ -201,7 +203,7 @@ class Bot:
             for j in range (10):
                 if self.plansza[i][j]==0:
                     if szachownica:
-                        if not (i+j)%2:
+                        if (i+j)%2==self.kolor_szachownicy:
                             pozostale.append((i,j))
                     else:
                         pozostale.append((i,j))   
@@ -296,7 +298,7 @@ class info: #correct
         if play == True:
             game_map.start_game()
             return
-        ret = button('START GAME', convert(80, 'H'), WIDTH//2 -self.w//2, int(HEIGHT*0.9), self.w, self.h, info_color, info_color_2, True)
+        ret = button('START GAME', convert(80, 'H'), WIDTH//2 -self.w//2, int(HEIGHT*0.865), self.w, self.h, info_color, info_color_2, True)
         if ret == True:
             all_set = 0
             for tile in game_map.your_tiles:
@@ -474,7 +476,7 @@ class g_map():
         self.ship_set = [1, 1, 1, 2, 2, 2, 3, 3, 3]
         self.player_ship_set = [1, 1, 1, 2, 2, 2, 3, 3, 3]
         self.ships = []
-        self.waves=[(random.randint(0, WIDTH), random.randint(0, HEIGHT)) for i in range (70)]
+        self.waves=[[random.randint(-30, WIDTH), random.randint(0, HEIGHT)] for i in range (70)]
         self.bot_thought_process=0
         self.delay = 0
         
@@ -565,15 +567,18 @@ class g_map():
 
     def draw_map(self):
         global shake
-        shift_x=-30
+        shift_x=0
         shift_y=0
         SCREEN.fill(base_color)
         if shake>0:
-            shift_x=random.randint(-10,10)
-            shift_y=random.randint(-10,10)
+            shift_x=random.randint(-20,20)
+            shift_y=random.randint(-20,20)
             shake-=1
         for x, y in self.waves: pygame.draw.line(SCREEN, (150, 190, 200), (x+shift_x, y+shift_y), (x+30+shift_x, y+shift_y), 2)
-        self.waves = [((x + 0.5) % WIDTH, y) for x, y in self.waves]
+        for wave in self.waves:
+            wave[0]+=0.5
+            if wave[0]>WIDTH:
+                wave[0]=-30
         for ob in self.enemy_tiles:
             ob.draw()
         for ob in self.your_tiles:
