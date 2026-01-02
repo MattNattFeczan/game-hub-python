@@ -35,7 +35,7 @@ def convert(number: int , dimension: str) -> int:
 def button(msg, size, x, y, width, height, color, color2, interact: bool):
     ret = False
     surface = pygame.Surface((width, height))
-    font = pygame.font.SysFont('Arial', convert(size, 'H')).render(msg, True, "white")
+    font = pygame.font.SysFont('Google Sans', convert(size, 'H')).render(msg, True, "white")
     mid_pos = font.get_rect(center=(width//2, height//2))
     ret_rect = pygame.Rect(x, y, width, height)
     if ret_rect.collidepoint(pygame.mouse.get_pos()) and interact:
@@ -60,27 +60,30 @@ def restart(game_map, bot):
         collides_with= None
 
 def right_message():
-    height = convert(300, 'H')
-    width = convert(400, 'W')
+    height = convert(600, 'H')
+    width = convert(800, 'W')
     base_pos_2 = (width*0.05,height*0.1)
     x, y = base_pos_2
-    font = pygame.font.SysFont('Arial', convert(40, 'H'))
+    font = pygame.font.SysFont('Google Sans', convert(70, 'H'))
     space_w = font.size(' ')[0]
-    text_info = 'Drag ships to lower grid with left mouse button Right click to rotate'
-    lines = text_info.split(' ')
+    text_info = "Drag ships to lower grid with left mouse button\nRight click to rotate\nShips:\nDestroyer - length 1\nSubmarine - length 2\nBattleship - length 3"
+    lines = text_info.splitlines()
     surface = pygame.Surface((width, height))
     max_x, max_y = surface.get_size()
     surface.fill(info_color)
-        
-    for word in lines:
-        text_surface = font.render(word, 0, 'white')
-        w_width, w_height = text_surface.get_size()
-        if x + w_width >= max_x:
-            x = base_pos_2[0]
-            y += w_height+height*0.05
-        surface.blit(text_surface, (x, y))
-        x += w_width + space_w
-    SCREEN.blit(surface, (WIDTH//6, HEIGHT//6))
+
+    for line in lines:
+        for word in line.split(' '):
+            text_surface = font.render(word, 0, 'white')
+            w_width, w_height = text_surface.get_size()
+            if x + w_width >= max_x:
+                x = base_pos_2[0]
+                y += w_height+height*0.05
+            surface.blit(text_surface, (x, y))
+            x += w_width + space_w
+        y+=w_height+height*0.05
+        x = base_pos_2[0]
+    SCREEN.blit(surface, (WIDTH*0.05, HEIGHT*0.1))
 
 def isnt_touching(tile_array, index) -> bool:
     base_index= index-10 #debatable decision
@@ -268,13 +271,13 @@ class info: #correct
         if play == True:
             game_map.start_game()
             return
-        ret = button('START GAME', convert(60, 'H'), WIDTH//2 -self.w//2, int(HEIGHT*0.9), self.w, self.h, info_color, info_color_2, True)
+        ret = button('START GAME', convert(80, 'H'), WIDTH//2 -self.w//2, int(HEIGHT*0.9), self.w, self.h, info_color, info_color_2, True)
         if ret == True:
             all_set = 0
             for s in game_map.ships:
                 if s.collides:
                     all_set+=1
-            if pygame.mouse.get_pressed(num_buttons=3)[0] and all_set == len(game_map.ships):
+            if all_set == len(game_map.ships):
                 play = True
                 for s in game_map.ships:
                     game_map.your_segments += s.size_unit
@@ -304,7 +307,7 @@ class info: #correct
         color = "green"
         if state == 'player':
             color = "red"
-        text = pygame.font.SysFont('Arial', convert(100, 'H'))
+        text = pygame.font.SysFont('Google Sans', convert(100, 'H'))
         width, height = text.size(msg)
         text = text.render(msg, True, color)
 
@@ -395,7 +398,7 @@ class tile():
                                 msg = 'HIT!!!'
                             else:
                                 self.s_list[self.s_pos]-=1
-                                msg = self.name + ' SUNKEN!!!'
+                                msg = self.name + ' SUNK!!!'
 
                             self.color = self.colors['hit']
                             return (msg, self.state, 1)
