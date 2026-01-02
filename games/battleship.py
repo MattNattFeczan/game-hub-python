@@ -18,6 +18,7 @@ base_color = (68,112,156)
 info_color = (138,161,185)
 info_color_2 = (100,130,140)
 collides_with = None
+enemy_ships = { 'DESTROYER': 3, 'SUBMARINE': 3, 'BATTLESHIP': 3 }
 play = False
 state = 'None'
 shake=0
@@ -60,18 +61,33 @@ def restart(game_map, bot):
         collides_with= None
 
 def right_message():
-    height = convert(600, 'H')
-    width = convert(800, 'W')
-    base_pos_2 = (width*0.05,height*0.1)
+
+    global play
+    global enemy_ships
+    if play == False:
+        width = convert(800, 'W')
+        height = convert(600, 'H')
+        text_info = "Drag ships to lower grid with left mouse button\nRight click to rotate\nShips:\nDestroyer - length 1\nSubmarine - length 2\nBattleship - length 3"
+    else:
+        width = convert(400, 'W')
+        height = convert(400, 'H')
+        text_info = 'Enemy ships:\n\nDestroyers: ' + str(enemy_ships['DESTROYER']) + '\n' + 'Submarines: ' + str(enemy_ships['SUBMARINE']) + '\n' + 'Battleships: ' + str(enemy_ships['BATTLESHIP'])
+
+
+    surface = pygame.Surface((width, height))
+    surface.fill(info_color)
+    render_text(surface, width, height, text_info)
+
+ 
+
+def render_text(surface, width, height, text):
+    lines = text.splitlines()
+    base_pos_2 = (width*0.05,height*0.05)
     x, y = base_pos_2
     font = pygame.font.SysFont('Google Sans', convert(70, 'H'))
     space_w = font.size(' ')[0]
-    text_info = "Drag ships to lower grid with left mouse button\nRight click to rotate\nShips:\nDestroyer - length 1\nSubmarine - length 2\nBattleship - length 3"
-    lines = text_info.splitlines()
-    surface = pygame.Surface((width, height))
+    
     max_x, max_y = surface.get_size()
-    surface.fill(info_color)
-
     for line in lines:
         for word in line.split(' '):
             text_surface = font.render(word, 0, 'white')
@@ -140,8 +156,9 @@ class Fire:
         self.y=y
         self.on=True
         self.particles=[]
+        self.clock = 0
     def manage_particles(self):
-        if self.on:
+        if self.on or self.clock > 0:
             for i in range(3):
                 self.particles.append(Particle(self.x+random.randint(-10,10),self.y+random.randint(-1,1)))
         for p in self.particles:
@@ -150,6 +167,8 @@ class Fire:
         for p in self.particles:
             p.draw()
             p.move_it()
+        if self.on == False and self.clock > 0:
+            self.clock-=1
 
 
 '''---------------------------------BOT-----------------------------------------------'''
@@ -279,11 +298,16 @@ class info: #correct
                     all_set+=1
             if all_set == len(game_map.ships):
                 play = True
+                index = 0
                 for s in game_map.ships:
                     game_map.your_segments += s.size_unit
                     for i in game_map.your_tiles:
                         if i.body.colliderect(s.body):
+                            i.s_list = game_map.player_ship_set
+                            i.s_pos = index
                             i.unit_num = s.size_unit
+                            print(i.s_list, i.s_pos)
+                    index+=1
                 for index,i in enumerate(game_map.your_tiles):
                     print(i.unit_num, end='')
                     if index%10 == 9:
@@ -379,10 +403,14 @@ class tile():
         pygame.draw.rect(SCREEN, (0, 0, 0), [self.x+3, self.y+3, self.width-6, self.height-6], width=3)
         if self.color==self.colors['sunk']: 
             if self.burning is not None: self.burning.on=False
+            
         if self.burning is not None:
-            if not self.burning.on and not self.burning.particles: self.burning=None
+            if not self.burning.on:
+                if self.burning.clock == 0:
+                    self.burning=None
         if self.burning is not None: self.burning.manage_particles()
     def interact(self, g_state, event):
+        global enemy_ships
         if self.state != g_state:
             mouse = pygame.mouse.get_pos()
             if not self.clicked:
@@ -391,14 +419,17 @@ class tile():
                     if event.type==pygame.MOUSEBUTTONDOWN and event.button==1:
                         self.clicked = True
                         if self.unit_num != 0:
-                            print(self.s_list)
                             if self.s_list[self.s_pos] > 1:
                                 self.s_list[self.s_pos]-=1
                                 self.burning=Fire(self.x+self.width//2,self.y+self.height//2) #position still needs some work...
+                                self.burning.clock = 120
                                 msg = 'HIT!!!'
                             else:
                                 self.s_list[self.s_pos]-=1
                                 msg = self.name + ' SUNK!!!'
+                                self.burning=Fire(self.x+self.width//2,self.y+self.height//2) #position still needs some work...
+                                self.burning.clock = 120
+                                enemy_ships[self.name]-=1
 
                             self.color = self.colors['hit']
                             return (msg, self.state, 1)
@@ -409,11 +440,15 @@ class tile():
                         self.color = self.colors['hover']
         return None
     def set_tile(self):
-        if self.unit_num == 0:
+        if self.unit_num == 0:            
             self.color = self.colors['miss']
             return ('MISS!!!', self.state, 0)
         else:
+            print(self.s_list)
             self.color = self.colors['hit']
+            self.burning=Fire(self.x+self.width//2,self.y+self.height//2) #copied
+            self.burning.clock = 120
+            self.s_list[self.s_pos]-=1
             return ('HIT!!!', self.state, 1)
 
     
@@ -426,7 +461,8 @@ class g_map():
         self.enemy_tiles = []
         self.your_tiles = []
         self.game_state = None
-        self.ships_set = [1, 1, 1, 2, 2, 2, 3, 3, 3]
+        self.ship_set = [1, 1, 1, 2, 2, 2, 3, 3, 3]
+        self.player_ship_set = [1, 1, 1, 2, 2, 2, 3, 3, 3]
         self.ships = []
         self.waves=[(random.randint(0, WIDTH), random.randint(0, HEIGHT)) for i in range (70)]
         self.bot_thought_process=0
@@ -453,7 +489,7 @@ class g_map():
         x = int(1900*WIDTH/BASE_WIDTH)
         y = HEIGHT*0.2
         z = 1
-        for index,i in enumerate(self.ships_set):
+        for index,i in enumerate(self.ship_set):
             ship(index, i, x, y, convert(36, 'H'), convert(36, 'H'), self.ships) #IT SHOULD BE 2 TIMES 'H'
             y += convert(80, 'H')
         
@@ -541,7 +577,7 @@ class g_map():
             return None
     
     def enemy_placement(self):
-        for index,ii in enumerate(self.ships_set):
+        for index,ii in enumerate(self.ship_set):
             rotation = random.randint(0,1)
             while True:
                 no = False
@@ -558,7 +594,7 @@ class g_map():
                     j = ii
                     while j > 0:
                         self.enemy_tiles[placement + j-1].unit_num = ii
-                        self.enemy_tiles[placement + j-1].s_list = self.ships_set
+                        self.enemy_tiles[placement + j-1].s_list = self.ship_set
                         self.enemy_tiles[placement + j-1].s_pos = index
                         self.enemy_tiles[placement + j-1].update_name()
                         j-=1
@@ -576,7 +612,7 @@ class g_map():
                     j = ii
                     while j > 0:
                         self.enemy_tiles[placement + 10*(j-1)].unit_num = ii
-                        self.enemy_tiles[placement + 10*(j-1)].s_list = self.ships_set
+                        self.enemy_tiles[placement + 10*(j-1)].s_list = self.ship_set
                         self.enemy_tiles[placement + 10*(j-1)].s_pos = index
                         self.enemy_tiles[placement + 10*(j-1)].update_name()
                         j-=1
