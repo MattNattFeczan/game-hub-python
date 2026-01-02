@@ -16,6 +16,7 @@ pygame.display.set_caption("Battleship")
 
 base_color = (68,112,156)
 info_color = (138,161,185)
+info_color_2 = (100,130,140)
 collides_with = None
 play = False
 state = 'None'
@@ -31,15 +32,18 @@ def convert(number: int , dimension: str) -> int:
     else:
         return 0
 
-def button(msg, size, x, y, width, height, color): 
+def button(msg, size, x, y, width, height, color, color2, interact: bool):
     surface = pygame.Surface((width, height))
     font = pygame.font.SysFont('Arial', convert(size, 'H')).render(msg, True, "white")
     mid_pos = font.get_rect(center=(width//2, height//2))
+    ret_rect = pygame.Rect(x, y, width, height)
+    if ret_rect.collidepoint(pygame.mouse.get_pos()) and interact:
+        color = color2
     surface.fill(color)
     surface.blit(font, mid_pos)
     SCREEN.blit(surface, (x,y))
 
-    return pygame.Rect(x, y, width, height)
+    return ret_rect
 
 def restart(game_map, bot):
         game_map.ships.clear()
@@ -281,7 +285,7 @@ class info: #correct
                         print()
                 game_map.enemy_placement()
             elif pygame.mouse.get_pressed(num_buttons=3)[0]:
-                info().hit_msg(("put all ships onto the grid", "player")) #have to create instance or something
+                self.hit_msg(("put all ships onto the grid", "player"))
                 
         pygame.draw.rect(SCREEN, info_color, self.body)
         SCREEN.blit(self.text, self.text_rect)
@@ -321,10 +325,10 @@ class info: #correct
         h_width_2 = convert(200, 'W')
         h_height_2 = convert(100, 'H')
         text_size = convert(80, 'H')
-        button_0 = button(msg, convert(100, 'H'), WIDTH//2-h_width//2, HEIGHT//2-h_height//2, h_width, h_height, info_color)
+        button_0 = button(msg, convert(100, 'H'), WIDTH//2-h_width//2, HEIGHT//2-h_height//2, h_width, h_height, info_color, info_color, False)
         #because button is not created around the point x,y but x,y is top right corner we get small problem
-        button_1 = button('RESTART', text_size, WIDTH//2-h_width_2-int(h_width*0.05), HEIGHT//2+int(h_height*1/4), h_width_2, h_height_2, color)
-        button_2 = button('QUIT', text_size, WIDTH//2+int(h_width*0.05), HEIGHT//2+int(h_height*1/4), h_width_2, h_height_2, color)
+        button_1 = button('RESTART', text_size, WIDTH//2-h_width_2-int(h_width*0.05), HEIGHT//2+int(h_height*1/4), h_width_2, h_height_2, color, info_color_2, True)
+        button_2 = button('QUIT', text_size, WIDTH//2+int(h_width*0.05), HEIGHT//2+int(h_height*1/4), h_width_2, h_height_2, color, info_color_2, True)
         
         mouse = pygame.mouse.get_pos()
         if button_1.collidepoint(mouse):
@@ -709,6 +713,7 @@ while True:
     info_i.hit_msg(msg) 
     if info_i.clock>0:
         msg=None
+    info_i.fin_msg('YOU WIN!!!', "green") 
     if ended != None:
         if info_i.fin_msg(ended, "green") == 'restart':
             restart(game_map, bot)
