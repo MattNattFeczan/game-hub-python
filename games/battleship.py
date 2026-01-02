@@ -64,6 +64,8 @@ def restart(game_map, bot):
         state = 'None'
         global collides_with
         collides_with= None
+        global enemy_ships
+        enemy_ships = { 'DESTROYER': 3, 'SUBMARINE': 3, 'BATTLESHIP': 3 }
 
 def right_message():
     global play
@@ -180,8 +182,9 @@ class Bot:
         self.statek=[] #posortowane wspolrzedne trafionych pol konkretnego statku, ktory nalezy dobic
         self.ktory=0
         self.trafione_pola=0 #ile zatopionych pol
-        self.sprawdz_obok_x=[1,-1,0,0]
-        self.sprawdz_obok_y=[0,0,1,-1]
+        self.sprawdz_obok_x=[[1,-1,0,0], [0,0,1,-1], [0,1,0,-1], [0,-1,0,1], [-1,1,0,0], [0,0,-1,1]]
+        self.sprawdz_obok_y=[[0,0,1,-1], [1,-1,0,0], [1,0,-1,0], [1,0,-1,0], [0,0,1,-1],[1,-1,0,0]]
+        self.strategia=random.randint(0,5)
         
     def reset(self):
         self.plansza=[[0]*10 for i in range(10)] 
@@ -189,6 +192,7 @@ class Bot:
         self.statek=[]
         self.ktory=0
         self.trafione_pola=0
+        self.strategia=random.randint(0,5)
         
     def zaktualizuj_pozostale_pola(self):
         pozostale=[]
@@ -227,8 +231,8 @@ class Bot:
         if len(self.statek)==1:
             i,j=self.statek[0]
             while self.ktory<4:
-                test_i=i+self.sprawdz_obok_x[self.ktory]
-                test_j=j+self.sprawdz_obok_y[self.ktory] 
+                test_i=i+self.sprawdz_obok_x[self.strategia][self.ktory]
+                test_j=j+self.sprawdz_obok_y[self.strategia][self.ktory] 
                 self.ktory+=1
                 if -1<test_i<10 and -1<test_j<10 and self.plansza[test_i][test_j]==0:
                     return test_i, test_j  
@@ -254,6 +258,7 @@ class Bot:
         if self.statek:
             i,j=self.kontynuuj()
         if i is None: #jesli zamiast if wstawic else nie sprawdzalby czy kontynuuj zwrocilo none
+            self.strategia=random.randint(0,5)
             self.ktory=0
             self.statek=[]
             if not losowanie: 
