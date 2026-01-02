@@ -650,6 +650,7 @@ class ship():
         self.rotation = 0
         self.hits = 0
         self.collides = False
+        self.clicked = False
         ships.append(self)
     def sunken(self):
         if self.hits != self.size_unit:
@@ -665,6 +666,7 @@ class ship():
                 if event.button == 1:
                         if self.body.collidepoint(event.pos):
                             collides_with = self.number
+                            self.clicked = True
                 if self.size_unit != 1 and event.button == 3 and self.body.collidepoint(event.pos):
                     self.rotation = not self.rotation
                     k = self.body.width
@@ -672,6 +674,7 @@ class ship():
                     self.body.height = k
 
             if event.type == pygame.MOUSEBUTTONUP:
+                self.clicked = False
                 if event.button == 1:
                     collides_with = None
                 for tile in game_map.your_tiles:
@@ -720,7 +723,7 @@ class ship():
                     self.collides = False
          
             if event.type == pygame.MOUSEMOTION:
-                if self.body.collidepoint(event.pos):
+                if self.body.collidepoint(event.pos) and self.clicked:
                     for tile in game_map.your_tiles:
                         if self.body.colliderect(tile.body):
                             tile.color = tile.colors['hover']
