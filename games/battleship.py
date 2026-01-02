@@ -33,18 +33,23 @@ def convert(number: int , dimension: str) -> int:
     else:
         return 0
 
-def button(msg, size, x, y, width, height, color, color2, interact: bool):
+def button(msg, size, x, y, width, height, color, color2, interact: bool, color3=base_color):
     ret = False
+    color3 = color[0]-20, color[1]-20, color[2]-20
     surface = pygame.Surface((width, height))
     font = pygame.font.SysFont('Google Sans', convert(size, 'H')).render(msg, True, "white")
     mid_pos = font.get_rect(center=(width//2, height//2))
     ret_rect = pygame.Rect(x, y, width, height)
     if ret_rect.collidepoint(pygame.mouse.get_pos()) and interact:
         color = color2
+        color3 = color2[0]-20, color2[1]-20, color[2]-20
         if pygame.mouse.get_pressed(num_buttons=3)[0]:
             ret = True
-             
-    surface.fill(color)
+
+    surface.fill(base_color)
+    pygame.draw.rect(surface, color3, surface.get_rect(), border_radius=4)
+    pygame.draw.rect(surface, color, surface.get_rect().scale_by(0.9), border_radius=4)
+    
     surface.blit(font, mid_pos)
     SCREEN.blit(surface, (x,y))
 
@@ -72,7 +77,8 @@ def right_message():
         height = convert(400, 'H')
         text_info = 'Enemy ships:\n\nDestroyers: ' + str(enemy_ships['DESTROYER']) + '\n' + 'Submarines: ' + str(enemy_ships['SUBMARINE']) + '\n' + 'Battleships: ' + str(enemy_ships['BATTLESHIP'])
     surface = pygame.Surface((width, height))
-    surface.fill(info_color)
+    surface.fill(base_color)
+    pygame.draw.rect(surface, info_color, surface.get_rect(), border_radius=4)
     render_text(surface, width, height, text_info)
 
 def render_text(surface, width, height, text):
@@ -323,7 +329,7 @@ class info: #correct
             msg, state = message[0], message[1]
             self.message = msg
             self.last_state = state
-            self.clock = 30
+            self.clock = 60
         clock = self.clock
         color = "green"
         if state == 'player':
@@ -335,14 +341,17 @@ class info: #correct
         surface = pygame.Surface((convert(width*2, 'W'), convert(height*4, 'H')))
         mid_pos_1 = surface.get_rect(center=(WIDTH//2, HEIGHT//2+clock))
         mid_pos_2 = text.get_rect(center=(WIDTH//2, HEIGHT//2+clock))
-        surface.fill(info_color)
+        surface.fill(base_color)
+        color = info_color[0]-20, info_color[1]-20, info_color[2]-20
+        pygame.draw.rect(surface, color, surface.get_rect(), border_radius=4)
+        pygame.draw.rect(surface, info_color, surface.get_rect().scale_by(0.9), border_radius=4)
         SCREEN.blit(surface, mid_pos_1)
         SCREEN.blit(text, mid_pos_2)
         if self.clock == 0:
             self.message = None
             self.last_state = None
         
-    def fin_msg(self, msg, color):
+    def fin_msg(self, msg):
         h_width = convert(800, 'W')
         h_height = convert(600, 'H')
         h_width_2 = convert(200, 'W')
@@ -350,10 +359,10 @@ class info: #correct
         text_size = convert(80, 'H')
         button_0 = button(msg, convert(100, 'H'), WIDTH//2-h_width//2, HEIGHT//2-h_height//2, h_width, h_height, info_color, info_color, False)
         #because button is not created around the point x,y but x,y is top right corner we get small problem
-        ret = button('RESTART', text_size, WIDTH//2-h_width_2-int(h_width*0.05), HEIGHT//2+int(h_height*1/4), h_width_2, h_height_2, color, info_color_2, True)
+        ret = button('RESTART', text_size, WIDTH//2-h_width_2-int(h_width*0.05), HEIGHT//2+int(h_height*1/4), h_width_2, h_height_2, (45,125,196), info_color_2, True, color3=info_color)
         if ret == True:
             return 'restart'
-        ret = button('QUIT', text_size, WIDTH//2+int(h_width*0.05), HEIGHT//2+int(h_height*1/4), h_width_2, h_height_2, color, info_color_2, True)
+        ret = button('QUIT', text_size, WIDTH//2+int(h_width*0.05), HEIGHT//2+int(h_height*1/4), h_width_2, h_height_2, (45,125,196), info_color_2, True, color3=info_color)
         if ret == True:       
                 pygame.quit()
                 sys.exit()
@@ -759,9 +768,9 @@ while True:
     info_i.hit_msg(msg) 
     if info_i.clock>0:
         msg=None
-    #info_i.fin_msg('YOU WIN!!!', "green") 
+    #info_i.fin_msg('YOU WIN!!!') 
     if ended != None:
-        if info_i.fin_msg(ended, "green") == 'restart':
+        if info_i.fin_msg(ended) == 'restart':
             restart(game_map, bot)
             game_map = g_map()    
     pygame.display.flip()
