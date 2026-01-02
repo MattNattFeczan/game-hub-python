@@ -61,7 +61,6 @@ def restart(game_map, bot):
         collides_with= None
 
 def right_message():
-
     global play
     global enemy_ships
     if play == False:
@@ -72,13 +71,9 @@ def right_message():
         width = convert(400, 'W')
         height = convert(400, 'H')
         text_info = 'Enemy ships:\n\nDestroyers: ' + str(enemy_ships['DESTROYER']) + '\n' + 'Submarines: ' + str(enemy_ships['SUBMARINE']) + '\n' + 'Battleships: ' + str(enemy_ships['BATTLESHIP'])
-
-
     surface = pygame.Surface((width, height))
     surface.fill(info_color)
     render_text(surface, width, height, text_info)
-
- 
 
 def render_text(surface, width, height, text):
     lines = text.splitlines()
@@ -158,7 +153,7 @@ class Fire:
         self.particles=[]
         self.clock = 0
     def manage_particles(self):
-        if self.on or self.clock > 0:
+        if self.on or self.clock:
             for i in range(3):
                 self.particles.append(Particle(self.x+random.randint(-10,10),self.y+random.randint(-1,1)))
         for p in self.particles:
@@ -293,6 +288,8 @@ class info: #correct
         ret = button('START GAME', convert(80, 'H'), WIDTH//2 -self.w//2, int(HEIGHT*0.9), self.w, self.h, info_color, info_color_2, True)
         if ret == True:
             all_set = 0
+            for tile in game_map.your_tiles:
+                    tile.color = tile.colors['normal']
             for s in game_map.ships:
                 if s.collides:
                     all_set+=1
@@ -374,7 +371,7 @@ class tile():
         self.s_pos = 0
         self.colors = {
             'normal': (88,135,183),
-            'hover': (219, 145, 140),
+            'hover': (95, 100, 161),
             'hit': (76, 219, 87),
             'miss': (255, 75, 0),
             'sunk': (149, 194, 160)
@@ -406,7 +403,7 @@ class tile():
             
         if self.burning is not None:
             if not self.burning.on:
-                if self.burning.clock == 0:
+                if self.burning.clock == 0 and not self.burning.particles:
                     self.burning=None
         if self.burning is not None: self.burning.manage_particles()
     def interact(self, g_state, event):
@@ -444,7 +441,6 @@ class tile():
             self.color = self.colors['miss']
             return ('MISS!!!', self.state, 0)
         else:
-            print(self.s_list)
             self.color = self.colors['hit']
             self.burning=Fire(self.x+self.width//2,self.y+self.height//2) #copied
             self.burning.clock = 120
@@ -486,12 +482,17 @@ class g_map():
                 y+=self.your_tiles[0].height
                 x = 0
         
-        x = int(1900*WIDTH/BASE_WIDTH)
-        y = HEIGHT*0.2
-        z = 1
+        x = int(1700*WIDTH/BASE_WIDTH)
+        y = HEIGHT*0.6
+        move = 2
         for index,i in enumerate(self.ship_set):
+            if index%3 == 0:
+                move+=1
+                x += convert(36*move, 'W')
+                y = HEIGHT*0.6
+                move
             ship(index, i, x, y, convert(36, 'H'), convert(36, 'H'), self.ships) #IT SHOULD BE 2 TIMES 'H'
-            y += convert(80, 'H')
+            y += convert(100, 'H')
         
     def start_game(self):
         if self.game_state == None:
@@ -506,7 +507,6 @@ class g_map():
         for s in self.ships:
             s.interact(mouse_event, game_map)
         ret = None
-        #print(self.game_state)
         if self.game_state == 'player': 
             for tile in self.enemy_tiles:
                 ret = tile.interact(self.game_state, mouse_event)
@@ -551,7 +551,7 @@ class g_map():
 
     def draw_map(self):
         global shake
-        shift_x=0
+        shift_x=-30
         shift_y=0
         SCREEN.fill(base_color)
         if shake>0:
@@ -670,9 +670,12 @@ class ship():
                     k = self.body.width
                     self.body.width = self.body.height
                     self.body.height = k
+
             if event.type == pygame.MOUSEBUTTONUP:
                 if event.button == 1:
                     collides_with = None
+                for tile in game_map.your_tiles:
+                    tile.color = tile.colors['normal']
                 for s in game_map.ships:
                     if self.body.colliderect(s.body) and self != s:
                         self.body.x = self.befx
@@ -715,8 +718,14 @@ class ship():
                     self.body.x = self.befx
                     self.body.y = self.befy
                     self.collides = False
-
+         
             if event.type == pygame.MOUSEMOTION:
+                if self.body.collidepoint(event.pos):
+                    for tile in game_map.your_tiles:
+                        if self.body.colliderect(tile.body):
+                            tile.color = tile.colors['hover']
+                        else:
+                            tile.color = tile.colors['normal']
                 if collides_with == self.number:
                     self.body.move_ip(event.rel)
 
