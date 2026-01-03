@@ -11,7 +11,6 @@ WIDTH, HEIGHT = 1920, 1080 #base 2880, 1800
 BASE_WIDTH, BASE_HEIGHT = 2800, 1800
 FLAGS =  pygame.DOUBLEBUF #| pygame.RESIZABLE
 SCREEN = pygame.display.set_mode((WIDTH, HEIGHT), FLAGS, vsync=1)
-SCREEN.set_alpha(None)
 pygame.display.set_caption("Battleship")
 
 base_color = (68,112,156)
@@ -652,10 +651,15 @@ class ship():
         self.size_unit = size_unit
         if self.size_unit == 1:
             width = width
+            path = './duck.png'
         elif self.size_unit == 2:
             width = convert(100, 'H')
+            path = './kapibara.png'
         else:
             width = convert(164, 'H')
+            path = './croc.png'
+        self.image = pygame.image.load(path)
+        self.image = pygame.transform.scale(self.image, (width, height))
         if self.size_unit == 1:
             self.name = 'destroyer'
         elif self.size_unit == 2:
@@ -676,7 +680,9 @@ class ship():
             return None
         return self.name
     def draw(self):
-        pygame.draw.rect(SCREEN, self.color, self.body)
+        #pygame.draw.rect(SCREEN, self.color, self.body)
+        
+        SCREEN.blit(self.image, (self.body.x, self.body.y))
     def interact(self, event, game_map):
         global collides_with
         if play == False:
