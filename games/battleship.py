@@ -412,7 +412,7 @@ class tile():
                 self.color = self.colors['sunk']
         self.surface.fill(self.color) 
         SCREEN.blit(self.surface, self.body)
-        pygame.draw.rect(SCREEN, (0, 0, 0), [self.x+3, self.y+3, self.width-6, self.height-6], width=3)
+        pygame.draw.rect(SCREEN, (68, 100, 150), [self.x+3, self.y+3, self.width-6, self.height-6], width=3)
         if self.color==self.colors['sunk']: 
             if self.burning is not None: self.burning.on=False
             
@@ -697,6 +697,10 @@ class ship():
                     k = self.body.width
                     self.body.width = self.body.height
                     self.body.height = k
+                    if self.rotation:
+                        self.image = pygame.transform.rotate(self.image, -90)
+                    else:
+                        self.image = pygame.transform.rotate(self.image, 90)
 
             if event.type == pygame.MOUSEBUTTONUP:
                 self.clicked = False
