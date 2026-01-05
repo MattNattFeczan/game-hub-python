@@ -8,7 +8,7 @@ pygame.init()
 
     #Początkujący – plansza 8×8 pól, 10 min, ryzyko trafienia na minę: 15,625%
     #Zaawansowany – plansza 16×16 pól, 40 min, ryzyko trafienia na minę: 15,625%
-    #Ekspert – plansza 30×16 pól, 99 min, ryzyko trafienia na minę: 20,625%
+    #Ekspert – plansza 16×24 pól, 99 min, ryzyko trafienia na minę: 20,625%
     #Plansza użytkownika – gracz sam wybiera rozmiary planszy (od 8×8 do 30×24 pól) i liczbę min (od 10 do 240).
 
 #Możliwa maksymalna liczba min zależna jest od rozmiarów planszy. Dla planszy o rozmiarach A×B maksymalna liczba #wynosi A×B/3, czyli np. na planszy o rozmiarach 12×16 pól może być najwyżej 12×16/3=64 miny.
@@ -29,10 +29,12 @@ class Button():
         if override_x is not None and override_y is not None:
             self.x = override_x
             self.y = override_y
+            #dla przycisku check
         else:
-            # Tu uwaga: jeśli przyciski mają 40px, to mnożnik też powinien być 40 (chyba że chcesz przerwy)
-            self.x = 50 + (i * 50) 
-            self.y = 50 + (j * 50)
+            
+            self.x = self.game.start_x + (i * (self.game.cell_size+10))
+            self.y = self.game.start_y + (j * (self.game.cell_size+10))
+            
 
         self.image_v = image_v
         self.image_blank = image_blank
@@ -42,8 +44,6 @@ class Button():
         self.image_kabum = image_kabum
         self.image_mine = image_mine
         self.image_check = image_check
-        #self.rect = self.image.get_rect()
-        #self.rect.topleft = (self.x, self.y)
         self.rect = pygame.Rect(self.x, self.y, width, height)
         self.clicked = False
         self.is_mine = False
@@ -142,6 +142,7 @@ class Button():
             # --- LEWY PRZYCISK (Odkrywanie) ---
             # Dodajemy warunek: nie można odkryć, jeśli jest flaga! (zasada sapera)
             elif pygame.mouse.get_pressed()[0] == 1 and not self.clicked and not self.is_flagged:
+            
                 self.clicked = True
                 self.is_question_mark = False # Kasujemy znak zapytania przy odkryciu
                 
@@ -172,7 +173,7 @@ class Button():
                 
                 # Tutaj przydałoby się małe opóźnienie (sleep) albo flaga blokująca,
                 # bo get_pressed() wykona to 10 razy w ciągu jednego kliknięcia.
-                pygame.time.delay(150) # BRZYDKI SPOSÓB, ale zadziała "na szybko"
+                pygame.time.delay(150)
                 
                     
                     
@@ -185,10 +186,15 @@ class Button():
 class Game():
 
     first_click = False
-    SCREEN_HEIGHT = 1000
-    SCREEN_WIDTH = 1000
+    #SCREEN_HEIGHT = 900
+    #SCREEN_WIDTH = 900
+    
+    info = pygame.display.Info()
+    
+    SCREEN_WIDTH = info.current_w
+    SCREEN_HEIGHT = info.current_h
 
-    screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT));
+    screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.RESIZABLE);
 
     #pygame.image.load().convert_alpha()
 
@@ -212,25 +218,38 @@ class Game():
     przycisk_blank.fill((140, 170, 180))
     
     def __init__(self):
+    
         # Inicjalizacja zmiennych dla tej konkretnej gry
+        
         self.buttons_list = []
         self.tab = []
         self.rows = 10
         self.columns = 10
+        self.cell_size = 40 
+        self.gap = 10 #odstęp między przyciskami
+        self.board_pixel_width = self.columns * (self.cell_size + 2*self.gap) #ile zajmuje miejsca przycisk wraz z odstępem
+        self.board_pixel_height = self.rows * (self.cell_size + 2*self.gap)
+        self.start_x = (self.SCREEN_WIDTH - self.board_pixel_width) // 2 #gdzie zacząć tworzenie planszy (wsp. x)
+        self.start_y = (self.SCREEN_HEIGHT - self.board_pixel_height) // 2 #gdzie zacząć tworzenie planszy (wsp. y)
         self.number_of_mines = 15
         self.mines_on_tab = 0
         self.przegrana = False
+        self.button_check_width = 160
+        self.button_check_height = 80
+        
+        
         self.button_check = Button(
             self, 0, 0, 
             self.przycisk_png, self.flaga_png, self.question_png, self.przycisk_v, self.kabum_png, self.mine_png, self.przycisk_blank, self.check_png,
-            width=160,       # Nowa szerokość
-            height=80,       # Nowa wysokość
-            override_x=500,  # Dokładna pozycja X w oknie
-            override_y=800    # Dokładna pozycja Y w oknie
+            width=self.button_check_width,       # Nowa szerokość
+            height=self.button_check_height,       # Nowa wysokość
+            override_x = self.SCREEN_WIDTH//2 + self.board_pixel_width//2.5,  # Dokładna pozycja X w oknie
+            override_y = (self.SCREEN_HEIGHT - self.button_check_height)//2    # Dokładna pozycja Y w oknie
         )
+        
+        
         self.button_check.is_check = True
-        self.button_check.is_check = True
-        print("Stworzono button_check")
+        #print("Stworzono button_check")
     
     def mainLoop(self):
     
@@ -259,7 +278,7 @@ class Game():
                     
                 self.button_check.draw()
                 
-                self.button_check.check_event()  # <--- WAŻNE: Dodaj to, żeby klikał
+                self.button_check.check_event()
                     
             else:
              
@@ -341,8 +360,9 @@ class Game():
                 
             if self.tab[x][y].is_flagged != self.tab[x][y].is_mine:
                 self.przegrana = True
-                self.is_visited = True
-                print("Aaaaa")
+                self.tab[x][y].is_visited = True
+                self.tab[x][y].is_kabum = True
+                #print("Aaaaa")
                 return
                 
             #czy jest mina   
@@ -388,7 +408,7 @@ class Game():
     def Reveal(self):
     
         for button in self.buttons_list:
-            print("AAAA")
+            #print("AAAA")
             button.draw()
             
     def Check(self):
