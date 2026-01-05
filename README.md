@@ -15,7 +15,6 @@
     - To verify the bot's efficiency, a custom test script (consulted with Gemini) was used to simulate 1,000 games and collect the results (which resulted in introducing the **checkerboard shooting pattern** when ships longer than one tile are still available).
 * 
 - **10x10 Tic-Tac-Toe**: 100-field board, **win by 5-in-a-row** (horizontal/vertical/diagonal) + unbeatable AI
-- **Battleship**: 10x10 board, random ship placement (1-4 cells) + smart AI opponent
 - **Minesweeper**: Grid with hidden mines, flagging/revealing mechanics
 
 ## 🚀 Features
