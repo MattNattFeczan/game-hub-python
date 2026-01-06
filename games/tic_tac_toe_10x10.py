@@ -122,6 +122,7 @@ def launch_tictactoe(screen):
                 else:
                     if make_move(x, y, board, square_size, current_player):
                         error_message = ""
+                        current_player = 3 - current_player
                     else:
                         error_message = "Niepoprawny ruch! Pole zajęte."
 
