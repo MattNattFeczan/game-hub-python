@@ -14,15 +14,18 @@ def najlepszy_ruch(plansza, gracz):
     return ruch
 def minimax(plansza, glebokosc, alpha, beta, maksymalizujacy):
     #Minimaks z przycinaniem alfa-beta. 
-    winner = end_game(plansza)
-    if winner == BOT:
+    zwyciezca = end_game(plansza)
+    if zwyciezca == BOT:
         return 1000000, None
-    elif winner == GRACZ: return -1000000, None
+    elif zwyciezca == GRACZ: return -1000000, None
     
     if glebokosc == 0:
         return ocena_planszy(plansza), None
     
     mozliwe_ruchy = zbadaj_mozliwe_ruchy(plansza)
+    if not mozliwe_ruchy:
+        return 0, None  #remis, brak mozliwych ruchow
+    
     najlepszy = None #najlepszy ruch do zwrocenia
     
     if(maksymalizujacy):
@@ -31,7 +34,7 @@ def minimax(plansza, glebokosc, alpha, beta, maksymalizujacy):
             wiersz, kolumna = ruch
             plansza[wiersz][kolumna] = BOT
             
-            wykik_temp, ruch = minimax(plansza, glebokosc - 1, alpha, beta, False )
+            wynik_temp, _  = minimax(plansza, glebokosc - 1, alpha, beta, False )
             plansza[wiersz][kolumna] = PUSTE
             
             if wynik_temp > max_wynik:
