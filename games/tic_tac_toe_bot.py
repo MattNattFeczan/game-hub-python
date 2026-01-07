@@ -54,7 +54,7 @@ def minimax(plansza, glebokosc, alpha, beta, maksymalizujacy):
             wiersz, kolumna = ruch
             plansza[wiersz][kolumna] = GRACZ
             
-            wynik_temp, ruch = minimax(plansza, glebokosc - 1, alpha, beta, True)
+            wynik_temp, _ = minimax(plansza, glebokosc - 1, alpha, beta, True)
             plansza[wiersz][kolumna] = PUSTE
             
             if wynik_temp < min_wynik:
