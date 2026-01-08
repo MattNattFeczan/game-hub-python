@@ -5,15 +5,17 @@ BOT = 2
 GRACZ = 1
 MAX_GLEBOKOSC = 3
 
-def najlepszy_ruch(plansza, gracz):
-    #Przyjmuje stan planszy i zwraca najlepszy ruch dla danego gracza.
+def najlepszy_ruch(plansza):
+    #Przyjmuje stan planszy i zwraca najlepszy ruch dla bota.
     wynik, ruch = minimax(plansza, MAX_GLEBOKOSC, float('-inf'), float('inf'), True)
     
     print(f"Bot wybrał ruch {ruch} z oceną {wynik}") #debug
     
     return ruch
 def minimax(plansza, glebokosc, alpha, beta, maksymalizujacy):
-    #Minimaks z przycinaniem alfa-beta. 
+    #Minimaks z przycinaniem alfa-beta.
+    #alpha - najlepszy wynik jaki bot moze osiagnac we wczesniej sprawdzonych galeziach
+    #beta - najnizszy wynik do ktorego gracz moze zmusic bota we wczesniej sprawdzonych galeziach
     zwyciezca = end_game(plansza)
     if zwyciezca == BOT:
         return 1000000, None
@@ -22,7 +24,7 @@ def minimax(plansza, glebokosc, alpha, beta, maksymalizujacy):
     if glebokosc == 0:
         return ocena_planszy(plansza), None
     
-    mozliwe_ruchy = zbadaj_mozliwe_ruchy(plansza)
+    mozliwe_ruchy = sprawdz_mozliwe_ruchy(plansza)
     if not mozliwe_ruchy:
         return 0, None  #remis, brak mozliwych ruchow
     
@@ -43,9 +45,8 @@ def minimax(plansza, glebokosc, alpha, beta, maksymalizujacy):
             
             alpha = max(alpha, wynik_temp)
             if beta <= alpha:
-                break  #beta (maksimum na ktore pozwoli gracz w tej galezi) jest mniejsza 
-                       #niz alpha (minimum jakie bot potrafi osiagnac w tej galezi) wiec jej nie sprawdzamy
-        return (max_wynik, najlepszy)
+                break  #gracz nie wybierze tej galezi, bo ma dostepny nizszy wynik we wczesniej sprawdzonych galeziach
+        return max_wynik, najlepszy
                 
             
     else:
@@ -63,9 +64,20 @@ def minimax(plansza, glebokosc, alpha, beta, maksymalizujacy):
             
             beta = min(beta, wynik_temp)
             if beta <= alpha:
-                break  #identyczne uzasadnienie jak wyzej
+                break  #bot nie wybierze tej galezi, bo ma dostepny wyzszy wynik we wczesniej sprawdzonych galeziach
         return min_wynik, najlepszy
-    
+
+def sprawdz_mozliwe_ruchy(plansza):
+    ruchy = []
+    wiersze = len(plansza)
+    kolumny = len(plansza[0])
+
+    for wiersz in range(wiersze):
+        for kolumna in range(kolumny):
+            if plansza[wiersz][kolumna] == PUSTE: #and ma_sasiada(plansza, wiersz, kolumna):     optymalizacja pol ktore bot bierze pod uwage
+                ruchy.append((wiersz, kolumna))
+
+    return ruchy
 
     
     
