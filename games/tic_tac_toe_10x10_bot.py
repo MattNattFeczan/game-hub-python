@@ -9,7 +9,7 @@ def najlepszy_ruch(plansza):
     #Przyjmuje stan planszy i zwraca najlepszy ruch dla bota.
     wynik, ruch = minimax(plansza, MAX_GLEBOKOSC, float('-inf'), float('inf'), True)
     
-    print(f"Bot wybrał ruch {ruch} z oceną {wynik}") #debug
+    #print(f"Bot wybrał ruch {ruch} z oceną {wynik}") #debug
     
     return ruch
 def minimax(plansza, glebokosc, alpha, beta, maksymalizujacy):
@@ -72,12 +72,41 @@ def sprawdz_mozliwe_ruchy(plansza):
     wiersze = len(plansza)
     kolumny = len(plansza[0])
 
+    czy_plansza_pusta = True
+    for w in range(wiersze):
+        for k in range(kolumny):
+            if plansza[w][k] != PUSTE:
+                czy_plansza_pusta = False
+                break
+        if not czy_plansza_pusta:
+            break
+
+    if czy_plansza_pusta:
+        return [(wiersze // 2, kolumny // 2)]  # jesli plansza jest pusta, zagraj na srodku
+
     for wiersz in range(wiersze):
         for kolumna in range(kolumny):
-            if plansza[wiersz][kolumna] == PUSTE: #and ma_sasiada(plansza, wiersz, kolumna):     optymalizacja pol ktore bot bierze pod uwage
+            if plansza[wiersz][kolumna] == PUSTE and ma_sasiada(plansza, wiersz, kolumna):     #optymalizacja ilosci pol ktore bot bierze pod uwage
                 ruchy.append((wiersz, kolumna))
 
     return ruchy
+
+def ma_sasiada(plansza, wiersz, kolumna):
+    #sprawdza czy pole sasiaduje z zajetym polem
+    wiersze = len(plansza)
+    kolumny = len(plansza[0])
+    promien = 1
+    wiersz_start = max(0, wiersz - promien)
+    wiersz_kon = min(wiersze, wiersz + promien + 1)
+    kolumna_start = max(0, kolumna - promien)
+    kolumna_kon = min(kolumny, kolumna + promien + 1)
+
+    for w in range(wiersz_start, wiersz_kon):
+        for k in range(kolumna_start, kolumna_kon):
+            if(plansza[w][k] != PUSTE): #nie trzeba sprawdzac czy plansza[w][k] to sprawdzane pole, bo to pole jest puste
+                return True
+    return False
+
 
     
     
