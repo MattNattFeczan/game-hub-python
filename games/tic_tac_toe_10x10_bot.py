@@ -12,6 +12,8 @@ def najlepszy_ruch(plansza):
     #print(f"Bot wybrał ruch {ruch} z oceną {wynik}") #debug
     
     return ruch
+
+
 def minimax(plansza, glebokosc, alpha, beta, maksymalizujacy):
     #Minimaks z przycinaniem alfa-beta.
     #alpha - najlepszy wynik jaki bot moze osiagnac we wczesniej sprawdzonych galeziach
@@ -67,6 +69,7 @@ def minimax(plansza, glebokosc, alpha, beta, maksymalizujacy):
                 break  #bot nie wybierze tej galezi, bo ma dostepny wyzszy wynik we wczesniej sprawdzonych galeziach
         return min_wynik, najlepszy
 
+
 def sprawdz_mozliwe_ruchy(plansza):
     ruchy = []
     wiersze = len(plansza)
@@ -108,5 +111,12 @@ def ma_sasiada(plansza, wiersz, kolumna):
     return False
 
 
-    
-    
+def ocena_planszy(plansza):
+   #funkcja obliczajaca punkty dla aktualnego stanu, poprzez dodawanie punktow za sytuacje korzystne dla bota i
+   #odejmowanie punktow za sytuacje korzystne dla gracza
+    suma = 0
+    wiersze = len(plansza)
+    kolumny = len(plansza[0])
+
+
+    return suma
