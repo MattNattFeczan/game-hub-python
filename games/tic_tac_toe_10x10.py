@@ -76,7 +76,7 @@ def end_game(board):
             if (row >= 4 and col >= 4 and board[col][row] 
                 and board[col][row] == board[col-1][row-1] == board[col-2][row-2] == board[col-3][row-3] == board[col-4][row-4]):
                 return board[col][row]
-            if (row + 4 <= ROWS and col >= 4 and board[col][row]
+            if (row + 4 < ROWS and col >= 4 and board[col][row]
                 and board[col][row] == board[col-1][row+1] == board[col-2][row+2] == board[col-3][row+3] == board[col-4][row+4]):
                 return board[col][row]
 
