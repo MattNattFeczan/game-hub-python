@@ -131,5 +131,14 @@ def ocena_planszy(plansza):
                sekwencja = [plansza[w+i][k] for i in range(5)]
                suma += ocena_sekwencji(sekwencja)
 
+           #sprawdzenie w skosie w prawo i w dol
+           if w + 4 < wiersze and k + 4 < kolumny:
+               sekwencja = [plansza[w+i][k+i] for i in range(5)]
+               suma += ocena_sekwencji(sekwencja)
 
-return suma
+            # sprawdzenie w skosie w lewo i w dol
+           if w + 4 < wiersze and k - 4 >= 0:
+               sekwencja = [plansza[w+i][k-i] for i in range[5]]
+               suma += ocena_sekwencji(sekwencja)
+
+    return suma
