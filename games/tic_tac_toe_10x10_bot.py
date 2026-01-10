@@ -10,7 +10,6 @@ def najlepszy_ruch(plansza):
     wynik, ruch = minimax(plansza, MAX_GLEBOKOSC, float('-inf'), float('inf'), True)
     
     #print(f"Bot wybrał ruch {ruch} z oceną {wynik}") #debug
-    
     return ruch
 
 
@@ -117,9 +116,8 @@ def ocena_planszy(plansza):
     suma = 0
     wiersze = len(plansza)
     kolumny = len(plansza[0])
-
-   for w in range(wiersze):
-       for k in range(kolumny):
+    for w in range(wiersze):
+        for k in range(kolumny):
 
            #sprawdzenie w poziomie
            if k + 4 < kolumny:
@@ -138,7 +136,41 @@ def ocena_planszy(plansza):
 
             # sprawdzenie w skosie w lewo i w dol
            if w + 4 < wiersze and k - 4 >= 0:
-               sekwencja = [plansza[w+i][k-i] for i in range[5]]
+               sekwencja = [plansza[w+i][k-i] for i in range(5)]
                suma += ocena_sekwencji(sekwencja)
 
     return suma
+
+
+def ocena_sekwencji(sekwencja):
+    #funkcja przyznajaca punkty za konkretna sekwencje pieciu pol
+    punkty = 0
+    pola_bota = sekwencja.count(BOT)
+    pola_gracza = sekwencja.count(GRACZ)
+
+    # jesli sekwencja zawiera pola obu grajacych,
+    # to nie prowadzi do zwyciestwa i nie jest zagrozeniem
+    if pola_bota > 0 and pola_gracza > 0:
+        return 0
+
+    #punkty przyznane za sekwencje bota
+    if pola_bota == 4:
+        punkty += 20000
+    elif pola_bota == 3:
+        punkty += 200
+    elif pola_bota == 2:
+        punkty += 20
+    elif pola_bota == 1:
+        punkty += 1
+
+    # punkty odjete za sekwencje gracza
+    if pola_gracza == 4:
+        punkty -= 30000
+    elif pola_gracza == 3:
+        punkty -= 300
+    elif pola_gracza == 2:
+        punkty -= 30
+    elif pola_gracza == 1:
+        punkty -= 1
+
+    return punkty
