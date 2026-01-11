@@ -8,7 +8,7 @@ pygame.init()
 
     #Początkujący – plansza 8×8 pól, 10 min
     #Zaawansowany – plansza 16×16 pól, 40 min
-    #Ekspert – plansza 16×24 pól, 70 min
+    #Ekspert – plansza 16×24 pól, 60 min
     
 def deltas():
   return ((-1, -1), (-1, 0), (-1, 1), (0, -1), (0, 1), (1, -1), (1, 0), (1, 1))
