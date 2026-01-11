@@ -229,6 +229,9 @@ class Button():
                 self.game.changing_difficulty = False
                 self.game.back_to_menu()
                 
+                while pygame.mouse.get_pressed()[0]:
+                    pygame.event.pump()
+                
             elif pygame.mouse.get_pressed()[0] and self.is_exit_main:
             
                 self.game.running = False
