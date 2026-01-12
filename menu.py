@@ -16,8 +16,24 @@ try:
     background_img = pygame.image.load("background.png").convert()
     background_img = pygame.transform.scale(background_img, (width, height))
 except Exception:
+    # jesli nie ma pliku, ustawiamy ciemne tlo zastepcze
     background_img = pygame.Surface((width, height))
     background_img.fill((15, 15, 25))
+
+# kontroler muzyki w tle
+is_muted = False
+try:
+    pygame.mixer.music.load("lobby.mp3")
+    pygame.mixer.music.set_volume(0.4)
+    pygame.mixer.music.play(-1) # odtwarzanie w petli
+except Exception:
+    pass # ciche pominiecie bledu braku muzyki
+
+# definicja kolorystyki interfejsu (rgba)
+btn_color   = (0, 0, 0, 200)   # czarny z przezroczystoscia
+hover_clr   = (35, 35, 45, 230) # jasniejszy przy najechaniu
+text_white  = (250, 250, 250)
+border_clr  = (180, 180, 180)
 
 # ladowanie czcionek systemowych
 try:
@@ -26,7 +42,9 @@ try:
 except Exception:
     font_title = pygame.font.SysFont('arial', 95, bold=True)
     font_btn   = pygame.font.SysFont('arial', 22, bold=True)
-    
+
+# generatory ikonek dla przyciskow (rysowane wektorowo)
+
 def get_ttc_icon():
     # ikonka kolko i krzyzyk - siatka i symbole
     surf = pygame.Surface((40, 40), pygame.SRCALPHA)
@@ -56,6 +74,15 @@ def get_mine_icon():
         pygame.draw.circle(surf, (40, 45, 50), (center[0]+off[0], center[1]+off[1]), 4)
     pygame.draw.circle(surf, (65, 75, 85), center, 14)
     pygame.draw.ellipse(surf, (100, 110, 120), (10, 10, 10, 7))
+    return surf
+
+def get_speaker_icon(muted):
+    # ikonka glosnika - kolor zmienia sie przy wyciszeniu
+    surf = pygame.Surface((40, 40), pygame.SRCALPHA)
+    clr = (220, 60, 50) if muted else (230, 230, 230)
+    pygame.draw.rect(surf, clr, (10, 15, 8, 10))
+    pygame.draw.polygon(surf, clr, [(18, 15), (28, 8), (28, 32), (18, 25)])
+    if muted: pygame.draw.line(surf, clr, (32, 10), (32, 30), 3)
     return surf
 
 # klasa odpowiedzialna za przyciski interfejsu
@@ -94,16 +121,77 @@ class Button:
         if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1 and self.hover:
             self.callback()
 
-# kontroler muzyki w tle
-is_muted = False
-try:
-    pygame.mixer.music.load("lobby.mp3")
-    pygame.mixer.music.set_volume(0.4)
-    pygame.mixer.music.play(-1)
-except Exception:
-    pass
+# funkcje wywolywane przez przyciski
 
 def toggle_audio():
+    # przelaczanie wyciszenia muzyki
     global is_muted
     is_muted = not is_muted
     pygame.mixer.music.set_volume(0 if is_muted else 0.4)
+
+def run_ttc():
+    # uruchomienie gry kolko i krzyzyk
+    try:
+        import tictactoe
+        tictactoe.run_game(screen)
+    except Exception: pass
+
+def run_battleships():
+    # uruchomienie gry statki
+    try:
+        import battleships
+        battleships.run_game(screen)
+    except Exception: pass
+
+def run_minesweeper():
+    # uruchomienie gry saper
+    try:
+        import minesweeper
+        minesweeper.run_game(screen)
+    except Exception: pass
+
+# glowna petla wykonawcza menu
+def main_exec():
+    b_w, b_h = 350, 75
+    center_x = width // 2 - b_w // 2
+    
+    # przycisk kontroli dzwieku w gornym rogu
+    mute_ctrl = Button("", width - 65, 20, 45, 45, get_speaker_icon(is_muted), toggle_audio, True)
+
+    # lista przyciskow nawigacyjnych
+    nav_btns = [
+        Button("tic-tac-toe", center_x, 220, b_w, b_h, get_ttc_icon(), run_ttc),
+        Button("battleships", center_x, 315, b_w, b_h, get_ship_icon(), run_battleships),
+        Button("minesweeper", center_x, 410, b_w, b_h, get_mine_icon(), run_minesweeper),
+        Button("exit hub",    center_x, 510, b_w, b_h, None,          lambda: sys.exit())
+    ]
+
+    while True:
+        # wyswietlanie tla
+        screen.blit(background_img, (0, 0))
+
+        # rysowanie naglowka z cieniem
+        t_main = font_title.render("game hub", True, text_white)
+        t_shadow = font_title.render("game hub", True, (10, 10, 10))
+        t_rect = t_main.get_rect(center=(width//2, 100))
+        screen.blit(t_shadow, (t_rect.x + 4, t_rect.y + 4))
+        screen.blit(t_main, t_rect)
+
+        # obsluga zdarzen systemowych i wejscia
+        for e in pygame.event.get():
+            if e.type == pygame.QUIT:
+                sys.exit()
+            mute_ctrl.update(e)
+            for b in nav_btns: b.update(e)
+
+        # aktualizacja stanu ikon i renderowanie interfejsu
+        mute_ctrl.icon = get_speaker_icon(is_muted)
+        mute_ctrl.render(screen)
+        for b in nav_btns: b.render(screen)
+
+        # odswiezenie ekranu
+        pygame.display.flip()
+        clock.tick(60)
+
+if __name__ == "__main__":
+    main_exec()
