@@ -17,7 +17,7 @@ def minimax(plansza, glebokosc, alpha, beta, maksymalizujacy):
     #Minimaks z przycinaniem alfa-beta.
     #alpha - najlepszy wynik jaki bot moze osiagnac we wczesniej sprawdzonych galeziach
     #beta - najnizszy wynik do ktorego gracz moze zmusic bota we wczesniej sprawdzonych galeziach
-    zwyciezca = end_game(plansza)
+    zwyciezca = end_game_copy(plansza)
     if zwyciezca == BOT:
         return 1000000, None
     elif zwyciezca == GRACZ: return -1000000, None
@@ -174,3 +174,21 @@ def ocena_sekwencji(sekwencja):
         punkty -= 1
 
     return punkty
+
+def end_game_copy(board):
+    for row in range(ROWS):
+        for col in range(COLS):
+            if (col >= 4 and board[col][row]
+                and board[col][row] == board[col-1][row] == board[col-2][row] == board[col-3][row] == board[col-4][row]):
+                return board[col][row]
+            if (row >= 4 and board[col][row]
+                and board[col][row] == board[col][row-1] == board[col][row-2] == board[col][row-3] == board[col][row-4]):
+                return board[col][row]
+            if (row >= 4 and col >= 4 and board[col][row]
+                and board[col][row] == board[col-1][row-1] == board[col-2][row-2] == board[col-3][row-3] == board[col-4][row-4]):
+                return board[col][row]
+            if (row + 4 < ROWS and col >= 4 and board[col][row]
+                and board[col][row] == board[col-1][row+1] == board[col-2][row+2] == board[col-3][row+3] == board[col-4][row+4]):
+                return board[col][row]
+
+    return 0
