@@ -94,3 +94,16 @@ class Button:
         if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1 and self.hover:
             self.callback()
 
+# kontroler muzyki w tle
+is_muted = False
+try:
+    pygame.mixer.music.load("lobby.mp3")
+    pygame.mixer.music.set_volume(0.4)
+    pygame.mixer.music.play(-1)
+except Exception:
+    pass
+
+def toggle_audio():
+    global is_muted
+    is_muted = not is_muted
+    pygame.mixer.music.set_volume(0 if is_muted else 0.4)
