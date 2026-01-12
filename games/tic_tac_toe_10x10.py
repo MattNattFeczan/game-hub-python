@@ -1,4 +1,6 @@
 import pygame
+import sys
+from tic_tac_toe_10x10_bot import najlepszy_ruch
 
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
@@ -21,18 +23,18 @@ def draw_grid(screen, width, height, square_size):
 
 def draw_figures(screen, board, square_size):
 
-    COLOR_P1 = GREEN 
-    COLOR_P2 = YELLOW 
-    LINE_WIDTH = 10 
-    OFFSET = square_size // 4 
-    RADIUS = square_size // 4  
+    COLOR_P1 = GREEN
+    COLOR_P2 = YELLOW
+    LINE_WIDTH = 10
+    OFFSET = square_size // 4
+    RADIUS = square_size // 4
 
     rows = len(board)
     cols = len(board[0])
 
     for row in range(rows):
         for col in range(cols):
-            
+
             # if player 1 is inside
             if board[row][col] == 1:
                 # calculate the middle of the cross
@@ -64,29 +66,48 @@ def make_move(x, y, board, square_size, current_player):
     board[col][row] = current_player
     return True
 
-def end_game(board):
-    for row in range(ROWS):
-        for col in range(COLS):
-            if (col >= 4 and board[col][row] 
-                and board[col][row] == board[col-1][row] == board[col-2][row] == board[col-3][row] == board[col-4][row]):
-                return board[col][row]
-            if (row >= 4 and board[col][row] 
-                and board[col][row] == board[col][row-1] == board[col][row-2] == board[col][row-3] == board[col][row-4]):
-                return board[col][row]
-            if (row >= 4 and col >= 4 and board[col][row] 
-                and board[col][row] == board[col-1][row-1] == board[col-2][row-2] == board[col-3][row-3] == board[col-4][row-4]):
-                return board[col][row]
-            if (row + 4 < ROWS and col >= 4 and board[col][row]
-                and board[col][row] == board[col-1][row+1] == board[col-2][row+2] == board[col-3][row+3] == board[col-4][row+4]):
-                return board[col][row]
 
+def end_game(board):
+    for row in range(10):
+        for col in range(10):
+            player = board[row][col]
+            if player == 0:
+                continue
+
+            if col + 4 < 10:
+                if (board[row][col + 1] == player and
+                        board[row][col + 2] == player and
+                        board[row][col + 3] == player and
+                        board[row][col + 4] == player):
+                    return player
+
+            if row + 4 < 10:
+                if (board[row + 1][col] == player and
+                        board[row + 2][col] == player and
+                        board[row + 3][col] == player and
+                        board[row + 4][col] == player):
+                    return player
+
+            if row + 4 < 10 and col + 4 < 10:
+                if (board[row + 1][col + 1] == player and
+                        board[row + 2][col + 2] == player and
+                        board[row + 3][col + 3] == player and
+                        board[row + 4][col + 4] == player):
+                    return player
+
+            if row + 4 < 10 and col - 4 >= 0:
+                if (board[row + 1][col - 1] == player and
+                        board[row + 2][col - 2] == player and
+                        board[row + 3][col - 3] == player and
+                        board[row + 4][col - 4] == player):
+                    return player
     return 0
 
 def launch_tictactoe(screen):
     # getting the size of a screen
     w, h = screen.get_size()
     square_size = w // COLS
-    
+
     # init the start values
     board = [[0 for _ in range(COLS)] for _ in range(ROWS)]
     running = True
@@ -99,17 +120,26 @@ def launch_tictactoe(screen):
     big_font = pygame.font.SysFont(None, 60)
 
     # button presetes
-    btn_again_rect = pygame.Rect(w//4, h//2, w//2, 50) 
+    btn_again_rect = pygame.Rect(w//4, h//2, w//2, 50)
     btn_menu_rect = pygame.Rect(w//4, h//2 + 70, w//2, 50)
 
     while running:
         winner = end_game(board);
+
+        if current_player == 2 and not winner:
+            pygame.event.pump()
+            ruch = najlepszy_ruch(board)
+            if ruch:
+                w, k = ruch
+                make_move(w * square_size + 1, k * square_size + 1, board, square_size, current_player)
+                current_player = 1
+                error_message = ""
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                return "EXIT" 
+                return "EXIT"
             if event.type == pygame.MOUSEBUTTONDOWN:
                 x, y = event.pos
-                # Check if we are still playing 
+                # Check if we are still playing
                 if winner:
                     if btn_menu_rect.collidepoint((x, y)):
                         return
@@ -120,11 +150,12 @@ def launch_tictactoe(screen):
                         error_message = ""
                 # if we have ended the game
                 else:
-                    if make_move(x, y, board, square_size, current_player):
-                        error_message = ""
-                        current_player = 3 - current_player
-                    else:
-                        error_message = "Niepoprawny ruch! Pole zajęte."
+                    if current_player == 1:
+                        if make_move(x, y, board, square_size, current_player):
+                            error_message = ""
+                            current_player = 2
+                        else:
+                            error_message = "Niepoprawny ruch! Pole zajęte."
 
         screen.fill(WHITE)
         draw_grid(screen, w, h, square_size)
@@ -132,16 +163,16 @@ def launch_tictactoe(screen):
 
         if error_message != "" and winner == 0:
             text_surface = font.render(error_message, True, RED)
-            
-            text_rect = text_surface.get_rect(center=(w // 2, h // 2)) 
-            bg_rect = text_rect.inflate(20, 20)             
+
+            text_rect = text_surface.get_rect(center=(w // 2, h // 2))
+            bg_rect = text_rect.inflate(20, 20)
             pygame.draw.rect(screen, BLACK, bg_rect)
-            pygame.draw.rect(screen, RED, bg_rect, 3) 
-            screen.blit(text_surface, text_rect) 
+            pygame.draw.rect(screen, RED, bg_rect, 3)
+            screen.blit(text_surface, text_rect)
 
         if winner:
             overlay = pygame.Surface((w, h))
-            overlay.set_alpha(180) 
+            overlay.set_alpha(180)
             overlay.fill(BLACK)
             screen.blit(overlay, (0,0))
             announcement = ""
@@ -151,13 +182,13 @@ def launch_tictactoe(screen):
             else:
                 announcement = "Sorry, You have lost."
                 text_color = YELLOW
-            
+
             # Display announcement
             text_surf = big_font.render(announcement, True, text_color)
             text_rect = text_surf.get_rect(center=(w//2, h//3))
             screen.blit(text_surf, text_rect)
 
-            # Play again button 
+            # Play again button
             pygame.draw.rect(screen, BLUE, btn_again_rect)
             pygame.draw.rect(screen, WHITE, btn_again_rect, 3)
             msg_again = font.render("Play Again", True, WHITE)
@@ -171,7 +202,15 @@ def launch_tictactoe(screen):
             msg_menu_rect = msg_menu.get_rect(center=btn_menu_rect.center)
             screen.blit(msg_menu, msg_menu_rect)
 
-            
+
         pygame.display.update()
 
     return
+
+if __name__ == "__main__":
+    pygame.init()
+    screen = pygame.display.set_mode((600, 600))
+    pygame.display.set_caption("Tic Tac Toe 10x10")
+    launch_tictactoe(screen)
+    pygame.quit()
+    sys.exit()

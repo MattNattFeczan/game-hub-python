@@ -1,4 +1,3 @@
-from tic_tac_toe_10x10 import end_game
 
 PUSTE = 0
 BOT = 2
@@ -154,7 +153,9 @@ def ocena_sekwencji(sekwencja):
         return 0
 
     #punkty przyznane za sekwencje bota
-    if pola_bota == 4:
+    if pola_bota == 5:
+        punkty += 100000000
+    elif pola_bota == 4:
         punkty += 20000
     elif pola_bota == 3:
         punkty += 200
@@ -164,6 +165,8 @@ def ocena_sekwencji(sekwencja):
         punkty += 1
 
     # punkty odjete za sekwencje gracza
+    if pola_gracza == 5:
+        punkty -= 100000000
     if pola_gracza == 4:
         punkty -= 30000
     elif pola_gracza == 3:
@@ -175,20 +178,39 @@ def ocena_sekwencji(sekwencja):
 
     return punkty
 
-def end_game_copy(board):
-    for row in range(ROWS):
-        for col in range(COLS):
-            if (col >= 4 and board[col][row]
-                and board[col][row] == board[col-1][row] == board[col-2][row] == board[col-3][row] == board[col-4][row]):
-                return board[col][row]
-            if (row >= 4 and board[col][row]
-                and board[col][row] == board[col][row-1] == board[col][row-2] == board[col][row-3] == board[col][row-4]):
-                return board[col][row]
-            if (row >= 4 and col >= 4 and board[col][row]
-                and board[col][row] == board[col-1][row-1] == board[col-2][row-2] == board[col-3][row-3] == board[col-4][row-4]):
-                return board[col][row]
-            if (row + 4 < ROWS and col >= 4 and board[col][row]
-                and board[col][row] == board[col-1][row+1] == board[col-2][row+2] == board[col-3][row+3] == board[col-4][row+4]):
-                return board[col][row]
 
+def end_game_copy(board):
+    for wiersz in range(10):
+        for kolumna in range(10):
+            na_polu = board[wiersz][kolumna]
+            if na_polu == 0:
+                continue
+                
+            if kolumna + 4 < 10:
+                if (board[wiersz][kolumna + 1] == na_polu and
+                        board[wiersz][kolumna + 2] == na_polu and
+                        board[wiersz][kolumna + 3] == na_polu and
+                        board[wiersz][kolumna + 4] == na_polu):
+                    return na_polu
+                
+            if wiersz + 4 < 10:
+                if (board[wiersz + 1][kolumna] == na_polu and
+                        board[wiersz + 2][kolumna] == na_polu and
+                        board[wiersz + 3][kolumna] == na_polu and
+                        board[wiersz + 4][kolumna] == na_polu):
+                    return na_polu
+                
+            if wiersz + 4 < 10 and kolumna + 4 < 10:
+                if (board[wiersz + 1][kolumna + 1] == na_polu and
+                        board[wiersz + 2][kolumna + 2] == na_polu and
+                        board[wiersz + 3][kolumna + 3] == na_polu and
+                        board[wiersz + 4][kolumna + 4] == na_polu):
+                    return na_polu
+
+            if wiersz + 4 < 10 and kolumna - 4 >= 0:
+                if (board[wiersz + 1][kolumna - 1] == na_polu and
+                        board[wiersz + 2][kolumna - 2] == na_polu and
+                        board[wiersz + 3][kolumna - 3] == na_polu and
+                        board[wiersz + 4][kolumna - 4] == na_polu):
+                    return na_polu
     return 0
