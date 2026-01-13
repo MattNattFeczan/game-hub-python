@@ -55,8 +55,8 @@ def draw_figures(screen, board, square_size):
 
 
 def make_move(x, y, board, square_size, current_player):
-    col = int(y/square_size)
-    row = int(x/square_size)
+    col = int(x/square_size)
+    row = int(y/square_size)
 
     if row >= ROWS or col >= COLS:
         return False
@@ -71,8 +71,6 @@ def end_game(board):
     for row in range(10):
         for col in range(10):
             player = board[row][col]
-            if player == 0:
-                continue
 
             if col + 4 < 10:
                 if (board[row][col + 1] == player and
