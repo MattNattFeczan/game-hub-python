@@ -18,7 +18,7 @@ def minimax(plansza, glebokosc, alpha, beta, maksymalizujacy):
     #beta - najnizszy wynik do ktorego gracz moze zmusic bota we wczesniej sprawdzonych galeziach
     zwyciezca = end_game_copy(plansza)
     if zwyciezca == BOT:
-        return 1000000, None
+        return 1000000 + glebokosc, None
     elif zwyciezca == GRACZ: return -1000000, None
     
     if glebokosc == 0:
