@@ -7,7 +7,7 @@ import bisect
 pygame.init()
 FPS = 60
 CLOCK = pygame.time.Clock()
-WIDTH, HEIGHT = 1920, 1080 #base 2880, 1800
+WIDTH, HEIGHT = 800, 600 #base 2880, 1800
 BASE_WIDTH, BASE_HEIGHT = 2800, 1800
 FLAGS =  pygame.DOUBLEBUF #| pygame.RESIZABLE
 SCREEN = pygame.display.set_mode((WIDTH, HEIGHT), FLAGS, vsync=1)
@@ -315,12 +315,12 @@ class info: #correct
                             i.s_list = game_map.player_ship_set
                             i.s_pos = index
                             i.unit_num = s.size_unit
-                            print(i.s_list, i.s_pos)
+                            # print(i.s_list, i.s_pos)
                     index+=1
-                for index,i in enumerate(game_map.your_tiles):
-                    print(i.unit_num, end='')
-                    if index%10 == 9:
-                        print()
+                # for index,i in enumerate(game_map.your_tiles):
+                #     print(i.unit_num, end='')
+                #     if index%10 == 9:
+                #         print()
                 game_map.enemy_placement()
             elif pygame.mouse.get_pressed(num_buttons=3)[0]:
                 self.hit_msg(("put all ships onto the grid", "player"))
@@ -342,6 +342,8 @@ class info: #correct
             color = "red"
         text = pygame.font.SysFont('Google Sans', convert(100, 'H'))
         width, height = text.size(msg)
+        width*=2
+        height*=2
         text = text.render(msg, True, color)
 
         surface = pygame.Surface((convert(width*2, 'W'), convert(height*4, 'H')))
@@ -365,10 +367,10 @@ class info: #correct
         text_size = convert(80, 'H')
         button_0 = button(msg, convert(100, 'H'), WIDTH//2-h_width//2, HEIGHT//2-h_height//2, h_width, h_height, info_color, info_color, False)
         #because button is not created around the point x,y but x,y is top right corner we get small problem
-        ret = button('RESTART', text_size, WIDTH//2-h_width_2-int(h_width*0.05), HEIGHT//2+int(h_height*1/4), h_width_2, h_height_2, (45,125,196), info_color_2, True, color3=info_color)
+        ret = button('RESTART', convert(text_size, 'H'), WIDTH//2-h_width_2-int(h_width*0.05), HEIGHT//2+int(h_height*1/4), h_width_2, h_height_2, (45,125,196), info_color_2, True, color3=info_color)
         if ret == True:
             return 'restart'
-        ret = button('QUIT', text_size, WIDTH//2+int(h_width*0.05), HEIGHT//2+int(h_height*1/4), h_width_2, h_height_2, (45,125,196), info_color_2, True, color3=info_color)
+        ret = button('QUIT', convert(text_size, 'H'), WIDTH//2+int(h_width*0.05), HEIGHT//2+int(h_height*1/4), h_width_2, h_height_2, (45,125,196), info_color_2, True, color3=info_color)
         if ret == True:       
                 pygame.quit()
                 sys.exit()
@@ -636,14 +638,14 @@ class g_map():
                         j-=1
                     self.enemy_segments += ii
                     break
-        print()
-        print('enemy map')
-        for index,i in enumerate(self.enemy_tiles):
-            print(i.unit_num, end='')
-            if index%10 == 9:
-                print()
-        print('enemy segments', self.enemy_segments)
-        print('your segments', self.your_segments)
+        # print()
+        # print('enemy map')
+        # for index,i in enumerate(self.enemy_tiles):
+        #     print(i.unit_num, end='')
+        #     if index%10 == 9:
+        #         print()
+        # print('enemy segments', self.enemy_segments)
+        # print('your segments', self.your_segments)
         
 class ship():
     def __init__(self, number, size_unit, x, y, width, height, ships):
