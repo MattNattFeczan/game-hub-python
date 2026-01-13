@@ -114,6 +114,7 @@ def launch_tictactoe(screen):
     current_player = 1
     winner = 0
     error_message = ""
+    error_timer = 0
 
     # set the font
     font = pygame.font.SysFont(None, 40)
@@ -130,13 +131,36 @@ def launch_tictactoe(screen):
         draw_figures(screen, board, square_size)
 
         if error_message != "" and winner == 0:
-            text_surface = font.render(error_message, True, RED)
+            current_time = pygame.time.get_ticks()
+            time_passed = current_time - error_timer
 
-            text_rect = text_surface.get_rect(center=(w // 2, h // 2))
-            bg_rect = text_rect.inflate(20, 20)
-            pygame.draw.rect(screen, BLACK, bg_rect)
-            pygame.draw.rect(screen, RED, bg_rect, 3)
-            screen.blit(text_surface, text_rect)
+            czas_widocznosci = 2000
+            czas_zanikania = 1000
+            calkowity_czas = czas_widocznosci + czas_zanikania
+
+            if time_passed < calkowity_czas:
+                if time_passed < czas_widocznosci:
+                    alpha = 255
+                else:
+                    czas_w_zanikaniu = time_passed - czas_widocznosci
+                    procent_zaniku = czas_w_zanikaniu / czas_zanikania
+                    alpha = int(255 * (1 - procent_zaniku))
+
+                error_surface = pygame.Surface((w, h), pygame.SRCALPHA)
+
+                text_surface = font.render(error_message, True, RED)
+                text_rect = text_surface.get_rect(center=(w // 2, h // 2))
+                bg_rect = text_rect.inflate(20, 20)
+
+                pygame.draw.rect(error_surface, (*BLACK, alpha), bg_rect)
+                pygame.draw.rect(error_surface, (*RED, alpha), bg_rect, 3)
+
+                text_surface.set_alpha(alpha)
+                error_surface.blit(text_surface, text_rect)
+
+                screen.blit(error_surface, (0, 0))
+            else:
+                error_message = ""
 
         winner = end_game(board);
         if winner:
@@ -205,6 +229,7 @@ def launch_tictactoe(screen):
                             current_player = 2
                         else:
                             error_message = "Niepoprawny ruch! Pole zajęte."
+                            error_timer = pygame.time.get_ticks()
     return
 
 
