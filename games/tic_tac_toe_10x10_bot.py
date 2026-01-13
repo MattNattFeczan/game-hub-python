@@ -166,7 +166,7 @@ def ocena_sekwencji(sekwencja):
 
     # punkty odjete za sekwencje gracza
     if pola_gracza == 5:
-        punkty -= 100000000
+        punkty -= 200000000
     if pola_gracza == 4:
         punkty -= 30000
     elif pola_gracza == 3:
