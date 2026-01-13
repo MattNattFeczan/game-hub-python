@@ -72,6 +72,7 @@ def sprawdz_mozliwe_ruchy(plansza):
     ruchy = []
     wiersze = len(plansza)
     kolumny = len(plansza[0])
+    srodek = [(4, 4), (4, 5), (5, 4), (5, 5),(3,4),(4,3),(5,3),(6,4),(3,5),(4,6),(5,6),(6,5)] #test
 
     czy_plansza_pusta = True
     for w in range(wiersze):
@@ -87,8 +88,10 @@ def sprawdz_mozliwe_ruchy(plansza):
 
     for wiersz in range(wiersze):
         for kolumna in range(kolumny):
-            if plansza[wiersz][kolumna] == PUSTE and ma_sasiada(plansza, wiersz, kolumna):     #optymalizacja ilosci pol ktore bot bierze pod uwage
-                ruchy.append((wiersz, kolumna))
+            if plansza[wiersz][kolumna] == PUSTE:
+                w_srodku = (wiersz, kolumna) in srodek
+                if w_srodku or ma_sasiada(plansza, wiersz, kolumna):     #optymalizacja ilosci pol ktore bot bierze pod uwage #test ze srodkiem
+                    ruchy.append((wiersz, kolumna))
 
     return ruchy
 
@@ -113,32 +116,44 @@ def ocena_planszy(plansza):
    #funkcja obliczajaca punkty dla aktualnego stanu, poprzez dodawanie punktow za sytuacje korzystne dla bota i
    #odejmowanie punktow za sytuacje korzystne dla gracza
     suma = 0
+    srodek = 0
     wiersze = len(plansza)
     kolumny = len(plansza[0])
+
     for w in range(wiersze):
         for k in range(kolumny):
+            #im blizej srodka planszy, tym wiecej punktow
+            mnoznik = 2
+            odleglosc_w = abs(w - 4.5)
+            odleglosc_k = abs(k - 4.5)
+            bonus = 10 - (odleglosc_w + odleglosc_k) * mnoznik      #test
 
-           #sprawdzenie w poziomie
-           if k + 4 < kolumny:
+            if plansza[w][k] == BOT:
+                srodek += bonus
+            elif plansza[w][k] == GRACZ:
+                srodek -= bonus
+
+            #sprawdzenie w poziomie
+            if k + 4 < kolumny:
                sekwencja = [plansza[w][k+i] for i in range(5)]
                suma += ocena_sekwencji(sekwencja)
 
-           #sprawdzenie w pionie
-           if w + 4 < wiersze:
+            #sprawdzenie w pionie
+            if w + 4 < wiersze:
                sekwencja = [plansza[w+i][k] for i in range(5)]
                suma += ocena_sekwencji(sekwencja)
 
-           #sprawdzenie w skosie w prawo i w dol
-           if w + 4 < wiersze and k + 4 < kolumny:
+            #sprawdzenie w skosie w prawo i w dol
+            if w + 4 < wiersze and k + 4 < kolumny:
                sekwencja = [plansza[w+i][k+i] for i in range(5)]
                suma += ocena_sekwencji(sekwencja)
 
-            # sprawdzenie w skosie w lewo i w dol
-           if w + 4 < wiersze and k - 4 >= 0:
+            #sprawdzenie w skosie w lewo i w dol
+            if w + 4 < wiersze and k - 4 >= 0:
                sekwencja = [plansza[w+i][k-i] for i in range(5)]
                suma += ocena_sekwencji(sekwencja)
 
-    return suma
+    return suma + srodek
 
 
 def ocena_sekwencji(sekwencja):
