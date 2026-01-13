@@ -79,7 +79,7 @@ def right_message():
     else:
         width = convert(400, 'W')
         height = convert(400, 'H')
-        text_info = 'Enemy ships:\nDestroyers: ' + str(enemy_ships['DESTROYER']) + '\n' + 'Submarines: ' + str(enemy_ships['SUBMARINE']) + '\n' + 'Battleships: ' + str(enemy_ships['BATTLESHIP'])
+        text_info = 'Enemy ships:\n\nDestroyers: ' + str(enemy_ships['DESTROYER']) + '\n' + 'Submarines: ' + str(enemy_ships['SUBMARINE']) + '\n' + 'Battleships: ' + str(enemy_ships['BATTLESHIP'])
     surface = pygame.Surface((width, height))
     surface.fill(base_color)
     pygame.draw.rect(surface, info_color, surface.get_rect(), border_radius=4)
@@ -300,7 +300,7 @@ class info: #correct
         if play == True:
             game_map.start_game()
             return
-        ret = button('START GAME', convert(80, 'H'), WIDTH//2 -self.w//2, int(HEIGHT*0.865), self.w, self.h, info_color, info_color_2, True)
+        ret = button('START GAME', convert(120, 'H'), WIDTH//2 -self.w//2, int(HEIGHT*0.865), self.w, self.h, info_color, info_color_2, True)
         if ret == True:
             all_set = 0
             for tile in game_map.your_tiles:
@@ -367,13 +367,13 @@ class info: #correct
         h_height = convert(600, 'H')
         h_width_2 = convert(200, 'W')
         h_height_2 = convert(100, 'H')
-        text_size = convert(80, 'H')
+        text_size = convert(120, 'H')
         button_0 = button(msg, convert(100, 'H'), WIDTH//2-h_width//2, HEIGHT//2-h_height//2, h_width, h_height, info_color, info_color, False)
         #because button is not created around the point x,y but x,y is top right corner we get small problem
-        ret = button('RESTART', convert(text_size, 'H'), WIDTH//2-h_width_2-int(h_width*0.05), HEIGHT//2+int(h_height*1/4), h_width_2, h_height_2, (45,125,196), info_color_2, True, color3=info_color)
+        ret = button('RESTART', text_size, WIDTH//2-h_width_2-int(h_width*0.05), HEIGHT//2+int(h_height*1/4), h_width_2, h_height_2, (45,125,196), info_color_2, True, color3=info_color)
         if ret == True:
             return 'restart'
-        ret = button('QUIT', convert(text_size, 'H'), WIDTH//2+int(h_width*0.05), HEIGHT//2+int(h_height*1/4), h_width_2, h_height_2, (45,125,196), info_color_2, True, color3=info_color)
+        ret = button('QUIT', text_size, WIDTH//2+int(h_width*0.05), HEIGHT//2+int(h_height*1/4), h_width_2, h_height_2, (45,125,196), info_color_2, True, color3=info_color)
         if ret == True:       
                 pygame.quit()
                 sys.exit()
