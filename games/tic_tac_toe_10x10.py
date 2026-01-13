@@ -177,8 +177,8 @@ def launch_tictactoe(screen):
             pygame.event.pump()
             ruch = najlepszy_ruch(board)
             if ruch:
-                w, k = ruch
-                make_move(k * square_size + 1, w * square_size + 1, board, square_size, current_player)
+                r, k = ruch
+                make_move(k * square_size + 1, r * square_size + 1, board, square_size, current_player)
                 current_player = 1
                 error_message = ""
             continue
