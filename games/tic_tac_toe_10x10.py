@@ -15,10 +15,10 @@ ROWS = 10
 COLS = 10
 
 def draw_grid(screen, width, height, square_size):
-    for i in range(COLS):
+    for i in range(COLS+1):
         pygame.draw.line(screen, BLACK, [i * square_size, 0], [i * square_size, height], 5)
 
-    for i in range(ROWS):
+    for i in range(ROWS+1):
         pygame.draw.line(screen, BLACK, [0, i * square_size], [width, i * square_size], 5)
 
 def draw_figures(screen, board, square_size):
@@ -61,9 +61,9 @@ def make_move(x, y, board, square_size, current_player):
     if row >= ROWS or col >= COLS:
         return False
 
-    if(board[col][row]):
+    if(board[row][col]):
         return False
-    board[col][row] = current_player
+    board[row][col] = current_player
     return True
 
 
@@ -71,6 +71,8 @@ def end_game(board):
     for row in range(10):
         for col in range(10):
             player = board[row][col]
+            if player == 0:
+                continue
 
             if col + 4 < 10:
                 if (board[row][col + 1] == player and
@@ -122,38 +124,6 @@ def launch_tictactoe(screen):
     btn_menu_rect = pygame.Rect(w//4, h//2 + 70, w//2, 50)
 
     while running:
-        winner = end_game(board);
-
-        if current_player == 2 and not winner:
-            pygame.event.pump()
-            ruch = najlepszy_ruch(board)
-            if ruch:
-                w, k = ruch
-                make_move(w * square_size + 1, k * square_size + 1, board, square_size, current_player)
-                current_player = 1
-                error_message = ""
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                return "EXIT"
-            if event.type == pygame.MOUSEBUTTONDOWN:
-                x, y = event.pos
-                # Check if we are still playing
-                if winner:
-                    if btn_menu_rect.collidepoint((x, y)):
-                        return
-                    if btn_again_rect.collidepoint((x, y)):
-                        board = [[0 for _ in range(COLS)] for _ in range(ROWS)]
-                        winner = 0
-                        current_player = 1
-                        error_message = ""
-                # if we have ended the game
-                else:
-                    if current_player == 1:
-                        if make_move(x, y, board, square_size, current_player):
-                            error_message = ""
-                            current_player = 2
-                        else:
-                            error_message = "Niepoprawny ruch! Pole zajęte."
 
         screen.fill(WHITE)
         draw_grid(screen, w, h, square_size)
@@ -168,6 +138,7 @@ def launch_tictactoe(screen):
             pygame.draw.rect(screen, RED, bg_rect, 3)
             screen.blit(text_surface, text_rect)
 
+        winner = end_game(board);
         if winner:
             overlay = pygame.Surface((w, h))
             overlay.set_alpha(180)
@@ -200,10 +171,42 @@ def launch_tictactoe(screen):
             msg_menu_rect = msg_menu.get_rect(center=btn_menu_rect.center)
             screen.blit(msg_menu, msg_menu_rect)
 
-
         pygame.display.update()
 
+        if current_player == 2 and not winner:
+            pygame.event.pump()
+            ruch = najlepszy_ruch(board)
+            if ruch:
+                w, k = ruch
+                make_move(k * square_size + 1, w * square_size + 1, board, square_size, current_player)
+                current_player = 1
+                error_message = ""
+            continue
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                return "EXIT"
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                x, y = event.pos
+                # Check if we are still playing
+                if winner:
+                    if btn_menu_rect.collidepoint((x, y)):
+                        return
+                    if btn_again_rect.collidepoint((x, y)):
+                        board = [[0 for _ in range(COLS)] for _ in range(ROWS)]
+                        winner = 0
+                        current_player = 1
+                        error_message = ""
+                # if we have ended the game
+                else:
+                    if current_player == 1:
+                        if make_move(x, y, board, square_size, current_player):
+                            error_message = ""
+                            current_player = 2
+                        else:
+                            error_message = "Niepoprawny ruch! Pole zajęte."
     return
+
 
 if __name__ == "__main__":
     pygame.init()

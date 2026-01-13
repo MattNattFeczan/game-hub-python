@@ -183,6 +183,8 @@ def end_game_copy(board):
     for wiersz in range(10):
         for kolumna in range(10):
             na_polu = board[wiersz][kolumna]
+            if na_polu == 0:
+                continue
                 
             if kolumna + 4 < 10:
                 if (board[wiersz][kolumna + 1] == na_polu and
