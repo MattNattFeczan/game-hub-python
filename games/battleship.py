@@ -4,14 +4,15 @@ import random
 import time
 import bisect
 
+
 pygame.init()
 FPS = 60
 CLOCK = pygame.time.Clock()
 WIDTH, HEIGHT = 800, 600 #base 2880, 1800
 BASE_WIDTH, BASE_HEIGHT = 2800, 1800
-FLAGS =  pygame.DOUBLEBUF #| pygame.RESIZABLE
-SCREEN = pygame.display.set_mode((WIDTH, HEIGHT), FLAGS, vsync=1)
-pygame.display.set_caption("Battleship")
+#FLAGS #=  pygame.DOUBLEBUF #| pygame.RESIZABLE
+SCREEN =None#= pygame.display.set_mode((WIDTH, HEIGHT), FLAGS, vsync=1)
+#pygame.display.set_caption("Battleship")
 
 base_color = (68,112,156)
 info_color = (138,161,185)
@@ -65,6 +66,8 @@ def restart(game_map, bot):
         collides_with= None
         global enemy_ships
         enemy_ships = { 'DESTROYER': 3, 'SUBMARINE': 3, 'BATTLESHIP': 3 }
+        global shake
+        shake=0
 
 def right_message():
     global play
@@ -76,7 +79,7 @@ def right_message():
     else:
         width = convert(400, 'W')
         height = convert(400, 'H')
-        text_info = 'Enemy ships:\n\nDestroyers: ' + str(enemy_ships['DESTROYER']) + '\n' + 'Submarines: ' + str(enemy_ships['SUBMARINE']) + '\n' + 'Battleships: ' + str(enemy_ships['BATTLESHIP'])
+        text_info = 'Enemy ships:\nDestroyers: ' + str(enemy_ships['DESTROYER']) + '\n' + 'Submarines: ' + str(enemy_ships['SUBMARINE']) + '\n' + 'Battleships: ' + str(enemy_ships['BATTLESHIP'])
     surface = pygame.Surface((width, height))
     surface.fill(base_color)
     pygame.draw.rect(surface, info_color, surface.get_rect(), border_radius=4)
@@ -128,7 +131,7 @@ class Particle:
 	    self.x=x
 	    self.y=y
 	    self.lifespan=random.randint(60,80)
-	    self.size=random.randint(3,9)
+	    self.size=random.randint(2,6)
 	    self.movex=random.randint(-1,1)
 	    self.movey=random.randint(-2,-1)
     def move_it(self):
@@ -137,7 +140,7 @@ class Particle:
 	    if self.lifespan>0:
 	        self.lifespan-=2
 	    if self.size>0:
-	        self.size-=0.1
+	        self.size-=0.05
     def draw(self):
 	    colour=0
 	    if self.lifespan>60:
@@ -162,7 +165,7 @@ class Fire:
     def manage_particles(self):
         if self.on or self.clock:
             for i in range(3):
-                self.particles.append(Particle(self.x+random.randint(-10,10),self.y+random.randint(-1,1)))
+                self.particles.append(Particle(self.x+random.randint(-5,5),self.y+random.randint(-1,1)))
         for p in self.particles:
             if p.lifespan<=0 or p.size<=0:
                 self.particles.remove(p)
@@ -763,37 +766,54 @@ class ship():
                 if collides_with == self.number:
                     self.body.move_ip(event.rel)
 
-#CLASS INSTANCES                 
-game_map = g_map()
-info_i = info()
-inner_clock = 0
-bot=Bot()
-msg=None
-#GAME LOOP
-while True:
-    #msg = None
-    ended = game_map.ending()
-    events=pygame.event.get()
-    for event in events: 
-        if event.type == pygame.QUIT:
-            pygame.quit()
-            sys.exit()
-        if not game_map.game_state=='enemy' and ended is None:
-            msg = game_map.player_interact(event)
-    if game_map.delay_check():
-        if game_map.game_state=='enemy' and ended is None:
-            msg=game_map.bot_interact()
-            
-    game_map.draw_map()
-    info_i.start_button(game_map)
-    right_message()
-    info_i.hit_msg(msg) 
-    if info_i.clock>0:
-        msg=None
-    #info_i.fin_msg('YOU WIN!!!') 
-    if ended != None:
-        if info_i.fin_msg(ended) == 'restart':
-            restart(game_map, bot)
-            game_map = g_map()    
-    pygame.display.flip()
-    CLOCK.tick(FPS)        
+#CLASS INSTANCES
+def launch_battleship(Screen, Clock, Fps):
+    global SCREEN, CLOCK, FPS, WIDTH, HEIGHT, game_map, bot, info_i, inner_clock, msg
+    WIDTH, HEIGHT=800, 600
+    SCREEN=Screen
+    CLOCK=Clock
+    FPS=Fps
+    game_map = g_map()
+    info_i = info()
+    inner_clock = 0
+    bot=Bot()
+    msg=None
+    restart(game_map, bot)
+    game_map = g_map()
+    bot=Bot()
+    #GAME LOOP
+    while True:
+        #msg = None
+        ended = game_map.ending()
+        events=pygame.event.get()
+        for event in events: 
+            if event.type == pygame.QUIT:
+                return
+            if not game_map.game_state=='enemy' and ended is None:
+                msg = game_map.player_interact(event)
+        if game_map.delay_check():
+            if game_map.game_state=='enemy' and ended is None:
+                msg=game_map.bot_interact()
+                
+        game_map.draw_map()
+        info_i.start_button(game_map)
+        right_message()
+        info_i.hit_msg(msg) 
+        if info_i.clock>0:
+            msg=None
+        #info_i.fin_msg('YOU WIN!!!') 
+        if ended != None:
+            if info_i.fin_msg(ended) == 'restart':
+                restart(game_map, bot)
+                game_map = g_map() 
+        pygame.display.flip()
+        CLOCK.tick(FPS)        
+        
+pygame.init()
+test_screen=pygame.display.set_mode((800, 600))
+pygame.display.set_caption("Battleship")
+test_clock=pygame.time.Clock()
+test_fps=60
+launch_battleship(test_screen, test_clock, test_fps)
+pygame.quit()
+sys.exit()
