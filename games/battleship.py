@@ -788,7 +788,13 @@ def launch_battleship(Screen, Clock, Fps):
         events=pygame.event.get()
         for event in events: 
             if event.type == pygame.QUIT:
-                return
+                pygame.quit()
+                sys.exit()
+            
+            if event.type==pygame.KEYDOWN:
+                if event.key==pygame.K_ESCAPE:
+                    return
+            
             if not game_map.game_state=='enemy' and ended is None:
                 msg = game_map.player_interact(event)
         if game_map.delay_check():
@@ -798,6 +804,9 @@ def launch_battleship(Screen, Clock, Fps):
         game_map.draw_map()
         info_i.start_button(game_map)
         right_message()
+        escape=pygame.font.SysFont('Google Sans', convert(50, 'H'))
+        esc_info=escape.render("Press Esc to go back to the menu", True, (200, 200, 200))
+        SCREEN.blit(esc_info, (WIDTH*0.05, HEIGHT*0.9))
         info_i.hit_msg(msg) 
         if info_i.clock>0:
             msg=None
@@ -809,11 +818,3 @@ def launch_battleship(Screen, Clock, Fps):
         pygame.display.flip()
         CLOCK.tick(FPS)        
         
-pygame.init()
-test_screen=pygame.display.set_mode((800, 600))
-pygame.display.set_caption("Battleship")
-test_clock=pygame.time.Clock()
-test_fps=60
-launch_battleship(test_screen, test_clock, test_fps)
-pygame.quit()
-sys.exit()
