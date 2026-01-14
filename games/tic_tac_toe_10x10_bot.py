@@ -121,7 +121,7 @@ def ocena_planszy(plansza):
     for w in range(wiersze):
         for k in range(kolumny):
             #im blizej srodka planszy, tym wiecej punktow
-            mnoznik = 2
+            mnoznik = 10
             odleglosc_w = abs(w - 4.5)
             odleglosc_k = abs(k - 4.5)
             bonus = 10 - (odleglosc_w + odleglosc_k) * mnoznik      #test
@@ -169,25 +169,25 @@ def ocena_sekwencji(sekwencja):
     if pola_bota == 5:
         punkty += 100000000
     elif pola_bota == 4:
-        punkty += 20000
+        punkty += 200000
     elif pola_bota == 3:
-        punkty += 200
+        punkty += 2000
     elif pola_bota == 2:
-        punkty += 20
+        punkty += 200
     elif pola_bota == 1:
-        punkty += 1
+        punkty += 10
 
     # punkty odjete za sekwencje gracza
     if pola_gracza == 5:
         punkty -= 200000000
     if pola_gracza == 4:
-        punkty -= 30000
+        punkty -= 300000
     elif pola_gracza == 3:
-        punkty -= 300
+        punkty -= 3000
     elif pola_gracza == 2:
-        punkty -= 30
+        punkty -= 300
     elif pola_gracza == 1:
-        punkty -= 1
+        punkty -= 10
 
     return punkty
 
