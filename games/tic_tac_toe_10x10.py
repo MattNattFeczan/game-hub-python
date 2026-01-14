@@ -10,6 +10,7 @@ RED = (255, 0, 0)
 GRAY = (200, 200, 200)
 DARK_GRAY = (50, 50, 50)
 BLUE = (70, 130, 180)
+ORANGE = (255, 165, 0)
 
 ROWS = 10
 COLS = 10
@@ -65,7 +66,71 @@ def make_move(x, y, board, square_size, current_player):
         return False
     board[row][col] = current_player
     return True
+def is_win_possible(board, gracz):
 
+    oponent = 2 if gracz == 1 else 1
+
+    #poziom
+    for r in range(ROWS):
+        for c in range(COLS - 4):
+            block = False
+            for k in range(5):
+                if board[r][c+k] == oponent:
+                    block = True
+                    break
+            if not block: return True
+
+    #pion
+    for r in range(ROWS - 4):
+        for c in range(COLS):
+            block = False
+            for k in range(5):
+                if board[r+k][c] == oponent:
+                    block = True
+                    break
+            if not block: return True
+
+    #skos \
+    for r in range(ROWS - 4):
+        for c in range(COLS - 4):
+            block = False
+            for k in range(5):
+                if board[r+k][c+k] == oponent:
+                    block = True
+                    break
+            if not block: return True
+
+    #skos /
+    for r in range(ROWS - 4):
+        for c in range(4, COLS):
+            block = False
+            for k in range(5):
+                if board[r+k][c-k] == oponent:
+                    block = True
+                    break
+            if not block: return True
+
+    return False
+
+
+def check_draw(board):
+
+    empty = False
+    for r in range(ROWS):
+        if 0 in board[r]:
+            empty = True
+            break
+
+    if not empty:
+        return True 
+
+    player1 = is_win_possible(board, 1)
+    bot2 = is_win_possible(board, 2)
+
+    if not player1 and not bot2:
+        return True
+
+    return False
 
 def end_game(board):
     for row in range(10):
@@ -163,6 +228,10 @@ def launch_tictactoe(screen):
                 error_message = ""
 
         winner = end_game(board);
+
+        if winner == 0 and check_draw(board):
+            winner = 3
+
         if winner:
             overlay = pygame.Surface((w, h))
             overlay.set_alpha(180)
@@ -172,9 +241,12 @@ def launch_tictactoe(screen):
             if(winner == 1):
                 announcement = "Congratulations! You won!"
                 text_color = GREEN
-            else:
+            elif(winner == 2):
                 announcement = "Sorry, You have lost."
                 text_color = YELLOW
+            elif winner == 3:
+                announcement = "It's a draw!"
+                text_color = ORANGE
 
             # Display announcement
             text_surf = big_font.render(announcement, True, text_color)
