@@ -375,8 +375,7 @@ class info: #correct
             return 'restart'
         ret = button('QUIT', text_size, WIDTH//2+int(h_width*0.05), HEIGHT//2+int(h_height*1/4), h_width_2, h_height_2, (45,125,196), info_color_2, True, color3=info_color)
         if ret == True:       
-                pygame.quit()
-                sys.exit()
+                return 'quit'
         
 class tile():
     def __init__(self, x, y, tile_state, tile_map):
@@ -812,9 +811,12 @@ def launch_battleship(Screen, Clock, Fps):
             msg=None
         #info_i.fin_msg('YOU WIN!!!') 
         if ended != None:
-            if info_i.fin_msg(ended) == 'restart':
+            what_next=info_i.fin_msg(ended)
+            if  what_next== 'restart':
                 restart(game_map, bot)
                 game_map = g_map() 
+            elif what_next=='quit':
+                return
         pygame.display.flip()
         CLOCK.tick(FPS)        
         
