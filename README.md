@@ -14,7 +14,7 @@
     - Consultation with Gemini regarding list comprehension and data structures (tuples vs lists).
     - To verify the bot's efficiency, a custom test script (consulted with Gemini) was used to simulate 1,000 games and collect the results (which resulted in introducing the **checkerboard shooting pattern** when ships longer than one tile are still available).
       
-*  **Bartosz Konat**
+* **Bartosz Konat**🐀
   - **UI** - interface and its elements.
   - **UX** - dragging, message animations, interaction with game board.
   - **Sources and Methodology:**
