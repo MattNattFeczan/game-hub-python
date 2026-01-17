@@ -139,8 +139,8 @@ def run_ttc():
 def run_battleships():
     # uruchomienie gry statki
     try:
-        import battleships
-        battleships.run_game(screen)
+        from games import battleship
+        battleship.launch_battleship(screen, clock, 60)
     except Exception: pass
 
 def run_minesweeper():
