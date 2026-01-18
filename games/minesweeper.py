@@ -452,7 +452,7 @@ class Game():
             if self.beggining_of_the_game:
                 for event in pygame.event.get():
                    if event.type == pygame.QUIT:
-                         self.running = False
+                         sys.exit()
                 self.screen.fill((30, 30, 30))
                 
                 logo_x = (self.SCREEN_WIDTH - self.minesweeper_png.get_width()) // 2
@@ -469,7 +469,7 @@ class Game():
         
                 for event in pygame.event.get():
                    if event.type == pygame.QUIT:
-                         self.running = False
+                         sys.exit()
                 self.screen.fill((30, 30, 30))
                 
                 title_x = (self.SCREEN_WIDTH - self.chosen_difficulty_png.get_width()) // 2
@@ -502,7 +502,7 @@ class Game():
             elif not self.przegrana:
                 for event in pygame.event.get():
                    if event.type == pygame.QUIT:
-                         self.running = False
+                         sys.exit()
                 
                 for button in self.buttons_list:
                    button.check_event()
@@ -526,7 +526,7 @@ class Game():
             else:
                 for event in pygame.event.get():
                    if event.type == pygame.QUIT:
-                         self.running = False
+                         sys.exit()
                          
                 self.screen.fill((30, 30, 30)) 
                 self.Reveal()
