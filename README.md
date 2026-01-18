@@ -25,7 +25,7 @@
 
 ## 💣 Minesweeper
 * **Author: Weronika Hes**
-** Key features:**
+**Key features:**
   - **Algorithms**
     - DFS for traversing the board
     - post-first click random map initialization, based on the chosen difficulty
