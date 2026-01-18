@@ -146,7 +146,7 @@ def run_battleships():
 def run_minesweeper():
     # uruchomienie gry saper
     try:
-        import minesweeper
+        from games import minesweeper
         minesweeper.run_game(screen)
     except Exception: pass
 
