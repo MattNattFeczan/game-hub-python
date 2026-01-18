@@ -14,6 +14,8 @@ def minimax(plansza, glebokosc, alpha, beta, maksymalizujacy):
     #Minimaks z przycinaniem alfa-beta.
     #alpha - najlepszy wynik jaki bot moze osiagnac we wczesniej sprawdzonych galeziach
     #beta - najnizszy wynik do ktorego gracz moze zmusic bota we wczesniej sprawdzonych galeziach
+    #Funkcja przyjmuje plansze, glebokosc sprawdzania, alpha, beta i czy jest to ruch maksymalizujacy (bota)
+    #czy minimalizujacy (gracza) i zwraca ocene planszy oraz najlepszy ruch do wykonania
     zwyciezca = end_game_copy(plansza)
     if zwyciezca == BOT:
         return 1000000 + glebokosc, None
@@ -67,6 +69,8 @@ def minimax(plansza, glebokosc, alpha, beta, maksymalizujacy):
 
 
 def sprawdz_mozliwe_ruchy(plansza):
+    #Funkcja przyjmuje plansze i zwraca liste ruchow, ktore algorytm minimaks wezmie pod uwage przy
+    #sprawdzaniu ktory ruch grajacy powinien teraz wykonac
     ruchy = []
     wiersze = len(plansza)
     kolumny = len(plansza[0])
@@ -82,19 +86,21 @@ def sprawdz_mozliwe_ruchy(plansza):
             break
 
     if czy_plansza_pusta:
-        return [(wiersze // 2, kolumny // 2)]  # jesli plansza jest pusta, zagraj na srodku
+        return [(wiersze // 2, kolumny // 2)]  #jesli plansza jest pusta, zagraj na srodku
 
     for wiersz in range(wiersze):
         for kolumna in range(kolumny):
             if plansza[wiersz][kolumna] == PUSTE:
                 w_srodku = (wiersz, kolumna) in srodek
-                if w_srodku or ma_sasiada(plansza, wiersz, kolumna):     #optymalizacja ilosci pol ktore bot bierze pod uwage #test ze srodkiem
+                if w_srodku or ma_sasiada(plansza, wiersz, kolumna):     #optymalizacja ilosci pol ktore bot bierze pod uwage
                     ruchy.append((wiersz, kolumna))
 
     return ruchy
 
 def ma_sasiada(plansza, wiersz, kolumna):
     #sprawdza czy pole sasiaduje z zajetym polem
+    #przyjmuje plansze oraz wspolrzedne pola do sprawdzenia
+    #zwraca True jesli pole ma sasiada, False jesli nie ma sasiada
     wiersze = len(plansza)
     kolumny = len(plansza[0])
     promien = 1
@@ -113,6 +119,7 @@ def ma_sasiada(plansza, wiersz, kolumna):
 def ocena_planszy(plansza):
    #funkcja obliczajaca punkty dla aktualnego stanu, poprzez dodawanie punktow za sytuacje korzystne dla bota i
    #odejmowanie punktow za sytuacje korzystne dla gracza
+   #przyjmuje plansze i zwraca jej ocene jako liczbe calkowita
     suma = 0
     srodek = 0
     wiersze = len(plansza)
@@ -124,7 +131,7 @@ def ocena_planszy(plansza):
             mnoznik = 10
             odleglosc_w = abs(w - 4.5)
             odleglosc_k = abs(k - 4.5)
-            bonus = 10 - (odleglosc_w + odleglosc_k) * mnoznik      #test
+            bonus = 10 - (odleglosc_w + odleglosc_k) * mnoznik
 
             if plansza[w][k] == BOT:
                 srodek += bonus
@@ -156,6 +163,7 @@ def ocena_planszy(plansza):
 
 def ocena_sekwencji(sekwencja):
     #funkcja przyznajaca punkty za konkretna sekwencje pieciu pol
+    #przyjmuje liste 5 pol i zwraca liczbe calkowita jako ocene tej sekwencji
     punkty = 0
     pola_bota = sekwencja.count(BOT)
     pola_gracza = sekwencja.count(GRACZ)
@@ -193,6 +201,11 @@ def ocena_sekwencji(sekwencja):
 
 
 def end_game_copy(board):
+    #funkcja sprawdzajaca czy gra sie skonczyla
+    #przyjmuje plansze i zwraca:
+    #0 - gra trwa
+    #1 - wygral gracz
+    #2 - wygral bot
     for wiersz in range(10):
         for kolumna in range(10):
             na_polu = board[wiersz][kolumna]

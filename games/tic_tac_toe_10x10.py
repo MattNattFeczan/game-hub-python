@@ -227,7 +227,7 @@ def launch_tictactoe(screen):
             else:
                 error_message = ""
 
-        winner = end_game(board);
+        winner = end_game(board)
 
         if winner == 0 and check_draw(board):
             winner = 3
