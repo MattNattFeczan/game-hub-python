@@ -1,6 +1,6 @@
 import pygame
 import sys
-from tic_tac_toe_10x10_bot import najlepszy_ruch
+from games.tic_tac_toe_10x10_bot import najlepszy_ruch
 
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
@@ -11,9 +11,43 @@ GRAY = (200, 200, 200)
 DARK_GRAY = (50, 50, 50)
 BLUE = (70, 130, 180)
 ORANGE = (255, 165, 0)
+SIDEBAR_COLOR = (40, 40, 50)
 
 ROWS = 10
 COLS = 10
+GAME_WIDTH = 600
+
+
+def draw_sidebar(screen, width, height, current_player):
+    #tlo
+    sidebar_rect = pygame.Rect(GAME_WIDTH, 0, width - GAME_WIDTH, height)
+    pygame.draw.rect(screen, SIDEBAR_COLOR, sidebar_rect)
+
+    #linia oddzielająca
+    pygame.draw.line(screen, (128,128,128), (GAME_WIDTH, 0), (GAME_WIDTH, height), 5)
+
+    font = pygame.font.SysFont('arial', 20)
+    font2 = pygame.font.SysFont('arial', 15)
+    title_font = pygame.font.SysFont('impact', 30)
+
+    title = title_font.render("TIC TAC TOE", True, WHITE)
+    screen.blit(title, (GAME_WIDTH + 20, 30))
+
+    title2 = title_font.render("10x10", True, BLUE)
+    screen.blit(title2, (GAME_WIDTH + 20, 70))
+
+    #informacja o turze
+    turn_msg = "Player's Turn" if current_player == 1 else "Bot is thinking..."
+    turn_color = GREEN if current_player == 1 else YELLOW
+    turn = font.render(turn_msg, True, turn_color)
+    screen.blit(turn, (GAME_WIDTH + 20, 150))
+
+    #instrukcja wyjscia
+    esc_msg = font2.render("Press ESC to", True, GRAY)
+    esc_msg2 = font2.render("go back to the menu", True, GRAY)
+
+    screen.blit(esc_msg, (GAME_WIDTH + 20, height - 80))
+    screen.blit(esc_msg2, (GAME_WIDTH + 20, height - 55))
 
 def draw_grid(screen, width, height, square_size):
     for i in range(COLS+1):
@@ -171,7 +205,7 @@ def end_game(board):
 def launch_tictactoe(screen):
     # getting the size of a screen
     w, h = screen.get_size()
-    square_size = w // COLS
+    square_size = GAME_WIDTH // COLS
 
     # init the start values
     board = [[0 for _ in range(COLS)] for _ in range(ROWS)]
@@ -189,11 +223,16 @@ def launch_tictactoe(screen):
     btn_again_rect = pygame.Rect(w//4, h//2, w//2, 50)
     btn_menu_rect = pygame.Rect(w//4, h//2 + 70, w//2, 50)
 
+    center_x = w // 2
+    btn_again_rect = pygame.Rect(center_x - w // 4, h // 2, w // 2, 50)
+    btn_menu_rect = pygame.Rect(center_x - w // 4, h // 2 + 70, w // 2, 50)
+
     while running:
 
         screen.fill(WHITE)
         draw_grid(screen, w, h, square_size)
         draw_figures(screen, board, square_size)
+        draw_sidebar(screen, w, h, current_player)
 
         if error_message != "" and winner == 0:
             current_time = pygame.time.get_ticks()
@@ -227,7 +266,7 @@ def launch_tictactoe(screen):
             else:
                 error_message = ""
 
-        winner = end_game(board);
+        winner = end_game(board)
 
         if winner == 0 and check_draw(board):
             winner = 3
@@ -282,6 +321,9 @@ def launch_tictactoe(screen):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 return "EXIT"
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    return "MENU"
             if event.type == pygame.MOUSEBUTTONDOWN:
                 x, y = event.pos
                 # Check if we are still playing

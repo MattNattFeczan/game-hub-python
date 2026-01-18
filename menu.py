@@ -129,12 +129,13 @@ def toggle_audio():
     is_muted = not is_muted
     pygame.mixer.music.set_volume(0 if is_muted else 0.4)
 
+
 def run_ttc():
-    # uruchomienie gry kolko i krzyzyk
     try:
-        import tictactoe
-        tictactoe.run_game(screen)
-    except Exception: pass
+        from games import tic_tac_toe_10x10
+        tic_tac_toe_10x10.launch_tictactoe(screen)
+    except Exception:
+        pass
 
 def run_battleships():
     # uruchomienie gry statki
