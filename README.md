@@ -22,7 +22,21 @@
     - https://docs.python.org/3/
       
 - **10x10 Tic-Tac-Toe**: 100-field board, **win by 5-in-a-row** (horizontal/vertical/diagonal) + unbeatable AI
-- **Minesweeper**: Grid with hidden mines, flagging/revealing mechanics
+
+## 💣 Minesweeper
+* **Author: Weronika Hes**
+** Key features:**
+  - **Algorithms**
+    - DFS for traversing the board
+    - post-first click random map initialization, based on the chosen difficulty
+  - **Visuals:**
+    - minimalist dark-themed UI for better readability
+    - custom assets designed specifically for the project
+  - **Sources and Methodology:**
+    - [Tutorial on buttons](https://www.youtube.com/watch?v=G8MYGDf_9ho)
+    - [Pygame documentation](https://www.pygame.org/docs/)
+    - [Pixel art website](https://www.pixilart.com/)
+    - Consultations with Gemini: assistance with learning Python basics, code formatting and debugging
 
 ## 🚀 Features
 - Central hub with game selection menu
