@@ -240,55 +240,55 @@ class Game():
 
         #ładowanie grafik w zależności skąd uruchomiony 
         try:
-            self.przycisk_png = pygame.image.load('utils/pixil-frame-0.png').convert_alpha()
-            self.flaga_png = pygame.image.load('utils/pixil-frame-0(2).png').convert_alpha()
-            self.question_png = pygame.image.load('utils/pixil-frame-0(1).png').convert_alpha()
-            self.kabum_png = pygame.image.load('utils/pixil-frame-0(4).png').convert_alpha()
-            self.mine_png = pygame.image.load('utils/pixil-frame-0(3).png').convert_alpha()
-            self.check_png = pygame.image.load('utils/pixil-frame-0(6).png').convert_alpha()
-            self.start_png = pygame.image.load('utils/pixil-frame-0(8).png').convert_alpha()
-            self.change_dif_png = pygame.image.load('utils/pixil-frame-0(7).png').convert_alpha()
-            self.exit_png = pygame.image.load('utils/pixil-frame-0(26).png').convert_alpha()
-            self.minesweeper_png = pygame.image.load('utils/pixil-frame-0(10).png').convert_alpha()
-            self.chosen_difficulty_png = pygame.image.load('utils/pixil-frame-0(24).png').convert_alpha()
-            self.easy_png = pygame.image.load('utils/pixil-frame-0(16).png').convert_alpha()
-            self.medium_png = pygame.image.load('utils/pixil-frame-0(20).png').convert_alpha()
-            self.hard_png = pygame.image.load('utils/pixil-frame-0(18).png').convert_alpha()
-            self.easy_pointed_png = pygame.image.load('utils/pixil-frame-0(17).png').convert_alpha()
-            self.medium_pointed_png = pygame.image.load('utils/pixil-frame-0(21).png').convert_alpha()
-            self.hard_pointed_png = pygame.image.load('utils/pixil-frame-0(19).png').convert_alpha()
-            self.easy_numbers_png = pygame.image.load('utils/pixil-frame-0(30).png').convert_alpha()
-            self.medium_numbers_png = pygame.image.load('utils/pixil-frame-0(29).png').convert_alpha()
-            self.hard_numbers_png = pygame.image.load('utils/pixil-frame-0(28).png').convert_alpha()
-            self.you_won_png = pygame.image.load('utils/pixil-frame-0(31).png').convert_alpha()
-            self.you_lost_png = pygame.image.load('utils/pixil-frame-0(32).png').convert_alpha()
-            self.exit_main_png = pygame.image.load('utils/pixil-frame-0(34).png').convert_alpha()
+            self.przycisk_png = pygame.image.load('assets/pixil-frame-0.png').convert_alpha()
+            self.flaga_png = pygame.image.load('assets/pixil-frame-0(2).png').convert_alpha()
+            self.question_png = pygame.image.load('assets/pixil-frame-0(1).png').convert_alpha()
+            self.kabum_png = pygame.image.load('assets/pixil-frame-0(4).png').convert_alpha()
+            self.mine_png = pygame.image.load('assets/pixil-frame-0(3).png').convert_alpha()
+            self.check_png = pygame.image.load('assets/pixil-frame-0(6).png').convert_alpha()
+            self.start_png = pygame.image.load('assets/pixil-frame-0(8).png').convert_alpha()
+            self.change_dif_png = pygame.image.load('assets/pixil-frame-0(7).png').convert_alpha()
+            self.exit_png = pygame.image.load('assets/pixil-frame-0(26).png').convert_alpha()
+            self.minesweeper_png = pygame.image.load('assets/pixil-frame-0(10).png').convert_alpha()
+            self.chosen_difficulty_png = pygame.image.load('assets/pixil-frame-0(24).png').convert_alpha()
+            self.easy_png = pygame.image.load('assets/pixil-frame-0(16).png').convert_alpha()
+            self.medium_png = pygame.image.load('assets/pixil-frame-0(20).png').convert_alpha()
+            self.hard_png = pygame.image.load('assets/pixil-frame-0(18).png').convert_alpha()
+            self.easy_pointed_png = pygame.image.load('assets/pixil-frame-0(17).png').convert_alpha()
+            self.medium_pointed_png = pygame.image.load('assets/pixil-frame-0(21).png').convert_alpha()
+            self.hard_pointed_png = pygame.image.load('assets/pixil-frame-0(19).png').convert_alpha()
+            self.easy_numbers_png = pygame.image.load('assets/pixil-frame-0(30).png').convert_alpha()
+            self.medium_numbers_png = pygame.image.load('assets/pixil-frame-0(29).png').convert_alpha()
+            self.hard_numbers_png = pygame.image.load('assets/pixil-frame-0(28).png').convert_alpha()
+            self.you_won_png = pygame.image.load('assets/pixil-frame-0(31).png').convert_alpha()
+            self.you_lost_png = pygame.image.load('assets/pixil-frame-0(32).png').convert_alpha()
+            self.exit_main_png = pygame.image.load('assets/pixil-frame-0(34).png').convert_alpha()
             
         except FileNotFoundError:
         
-            self.przycisk_png = pygame.image.load('pixil-frame-0.png').convert_alpha()
-            self.flaga_png = pygame.image.load('pixil-frame-0(2).png').convert_alpha()
-            self.question_png = pygame.image.load('pixil-frame-0(1).png').convert_alpha()
-            self.kabum_png = pygame.image.load('pixil-frame-0(4).png').convert_alpha()
-            self.mine_png = pygame.image.load('pixil-frame-0(3).png').convert_alpha()
-            self.check_png = pygame.image.load('pixil-frame-0(6).png').convert_alpha()
-            self.start_png = pygame.image.load('pixil-frame-0(8).png').convert_alpha()
-            self.change_dif_png = pygame.image.load('pixil-frame-0(7).png').convert_alpha()
-            self.exit_png = pygame.image.load('pixil-frame-0(26).png').convert_alpha()
-            self.minesweeper_png = pygame.image.load('pixil-frame-0(10).png').convert_alpha()
-            self.chosen_difficulty_png = pygame.image.load('pixil-frame-0(24).png').convert_alpha()
-            self.easy_png = pygame.image.load('pixil-frame-0(16).png').convert_alpha()
-            self.medium_png = pygame.image.load('pixil-frame-0(20).png').convert_alpha()
-            self.hard_png = pygame.image.load('pixil-frame-0(18).png').convert_alpha()
-            self.easy_pointed_png = pygame.image.load('pixil-frame-0(17).png').convert_alpha()
-            self.medium_pointed_png = pygame.image.load('pixil-frame-0(21).png').convert_alpha()
-            self.hard_pointed_png = pygame.image.load('pixil-frame-0(19).png').convert_alpha()
-            self.easy_numbers_png = pygame.image.load('pixil-frame-0(30).png').convert_alpha()
-            self.medium_numbers_png = pygame.image.load('pixil-frame-0(29).png').convert_alpha()
-            self.hard_numbers_png = pygame.image.load('pixil-frame-0(28).png').convert_alpha()
-            self.you_won_png = pygame.image.load('pixil-frame-0(31).png').convert_alpha()
-            self.you_lost_png = pygame.image.load('pixil-frame-0(32).png').convert_alpha()
-            self.exit_main_png = pygame.image.load('pixil-frame-0(34).png').convert_alpha()
+            self.przycisk_png = pygame.image.load('../assets/pixil-frame-0.png').convert_alpha()
+            self.flaga_png = pygame.image.load('../assets/pixil-frame-0(2).png').convert_alpha()
+            self.question_png = pygame.image.load('../assets/pixil-frame-0(1).png').convert_alpha()
+            self.kabum_png = pygame.image.load('../assets/pixil-frame-0(4).png').convert_alpha()
+            self.mine_png = pygame.image.load('../assets/pixil-frame-0(3).png').convert_alpha()
+            self.check_png = pygame.image.load('../assets/pixil-frame-0(6).png').convert_alpha()
+            self.start_png = pygame.image.load('../assets/pixil-frame-0(8).png').convert_alpha()
+            self.change_dif_png = pygame.image.load('../assets/pixil-frame-0(7).png').convert_alpha()
+            self.exit_png = pygame.image.load('../assets/pixil-frame-0(26).png').convert_alpha()
+            self.minesweeper_png = pygame.image.load('../assets/pixil-frame-0(10).png').convert_alpha()
+            self.chosen_difficulty_png = pygame.image.load('../assets/pixil-frame-0(24).png').convert_alpha()
+            self.easy_png = pygame.image.load('../assets/pixil-frame-0(16).png').convert_alpha()
+            self.medium_png = pygame.image.load('../assets/pixil-frame-0(20).png').convert_alpha()
+            self.hard_png = pygame.image.load('../assets/pixil-frame-0(18).png').convert_alpha()
+            self.easy_pointed_png = pygame.image.load('../assets/pixil-frame-0(17).png').convert_alpha()
+            self.medium_pointed_png = pygame.image.load('../assets/pixil-frame-0(21).png').convert_alpha()
+            self.hard_pointed_png = pygame.image.load('../assets/pixil-frame-0(19).png').convert_alpha()
+            self.easy_numbers_png = pygame.image.load('../assets/pixil-frame-0(30).png').convert_alpha()
+            self.medium_numbers_png = pygame.image.load('../assets/pixil-frame-0(29).png').convert_alpha()
+            self.hard_numbers_png = pygame.image.load('../assets/pixil-frame-0(28).png').convert_alpha()
+            self.you_won_png = pygame.image.load('../assets/pixil-frame-0(31).png').convert_alpha()
+            self.you_lost_png = pygame.image.load('../assets/pixil-frame-0(32).png').convert_alpha()
+            self.exit_main_png = pygame.image.load('../assets/pixil-frame-0(34).png').convert_alpha()
 
         #### SKALOWANIE DO 800x600
         
@@ -452,7 +452,7 @@ class Game():
             if self.beggining_of_the_game:
                 for event in pygame.event.get():
                    if event.type == pygame.QUIT:
-                         self.running = False
+                         sys.exit()
                 self.screen.fill((30, 30, 30))
                 
                 logo_x = (self.SCREEN_WIDTH - self.minesweeper_png.get_width()) // 2
@@ -469,7 +469,7 @@ class Game():
         
                 for event in pygame.event.get():
                    if event.type == pygame.QUIT:
-                         self.running = False
+                         sys.exit()
                 self.screen.fill((30, 30, 30))
                 
                 title_x = (self.SCREEN_WIDTH - self.chosen_difficulty_png.get_width()) // 2
@@ -502,7 +502,7 @@ class Game():
             elif not self.przegrana:
                 for event in pygame.event.get():
                    if event.type == pygame.QUIT:
-                         self.running = False
+                         sys.exit()
                 
                 for button in self.buttons_list:
                    button.check_event()
@@ -526,7 +526,7 @@ class Game():
             else:
                 for event in pygame.event.get():
                    if event.type == pygame.QUIT:
-                         self.running = False
+                         sys.exit()
                          
                 self.screen.fill((30, 30, 30)) 
                 self.Reveal()
