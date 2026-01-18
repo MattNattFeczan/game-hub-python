@@ -1,6 +1,6 @@
 # Python Game Hub
 
-**Pygame** gaming hub featuring three classic games with **10x10 Tic-Tac-Toe** (5-in-a-row Gomoku rules), **Battleship**, and **Minesweeper**. All games include **single-player bot opponents**.
+**Pygame** gaming hub featuring three classic games with **10x10 Tic-Tac-Toe** (5-in-a-row Gomoku rules), **Battleship**, and **Minesweeper**.
 
 ## 🎮 Games
 
@@ -25,7 +25,7 @@
 
 ## 💣 Minesweeper
 * **Author: Weronika Hes**
-**Key features:**
+* **Key features:**
   - **Algorithms**
     - DFS for traversing the board
     - post-first click random map initialization, based on the chosen difficulty
@@ -39,10 +39,13 @@
     - Consultations with Gemini: assistance with learning Python basics, code formatting and debugging
 
 ## 🚀 Features
-- Central hub with game selection menu
-- **Single-player vs Bot opponent** across all games
-- Full Pygame GUI (10x10 grids, sprites, click feedback)
-- Strategic bot opponent: Minimax for Tic-Tac-Toe, smart targeting for Battleship
+- **Central Hub:** Unified menu for easy game selection.
+- **Single-player vs Bot:** Challenge the computer in Tic-Tac-Toe and Battleship.
+- **Interactive Pygame GUI:** Custom sprites, responsive click feedback, and dynamic grid rendering.
+- **Strategic AI:**
+  - **Tic-Tac-Toe:** Unbeatable bot using the Minimax algorithm.
+  - **Battleship:** Smart targeting strategy.
+- **Minesweeper:** Classic mechanics with DFS-based auto-reveal and multiple difficulty levels.
 
 ## 🛠️ Tech Stack
 - pygame==2.6.1
