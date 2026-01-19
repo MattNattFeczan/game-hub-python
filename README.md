@@ -22,7 +22,7 @@
     - https://docs.python.org/3/
       
 ## ❌ Tic-Tac-Toe 10x10
-* **Authors: Mateusz Feczan & Bartosz Budziński**
+* **Authors: Mateusz Feczan & Bartłomiej Budziński**
 * **Key features:**
   - **Unbeatable AI** - advanced logic designed to block player strategies and maximize winning chances on an expanded board.
   - **Extended Grid** - 100-field board (10x10) requiring **5-in-a-row** (horizontal, vertical, or diagonal) to win.
