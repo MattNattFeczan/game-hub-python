@@ -13,7 +13,7 @@ clock = pygame.time.Clock()
 
 # ladowanie obrazu tla z pliku
 try:
-    background_img = pygame.image.load("background.png").convert()
+    background_img = pygame.image.load("assets/images/background.png").convert()
     background_img = pygame.transform.scale(background_img, (width, height))
 except Exception:
     # jesli nie ma pliku, ustawiamy ciemne tlo zastepcze
@@ -23,7 +23,7 @@ except Exception:
 # kontroler muzyki w tle
 is_muted = False
 try:
-    pygame.mixer.music.load("lobby.mp3")
+    pygame.mixer.music.load("assets/audio/lobby.mp3")
     pygame.mixer.music.set_volume(0.4)
     pygame.mixer.music.play(-1) # odtwarzanie w petli
 except Exception:

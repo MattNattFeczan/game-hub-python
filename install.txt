@@ -1,0 +1,28 @@
+=========================================
+      TIC-TAC-TOE 10x10 - INSTALLATION
+=========================================
+
+To run this game, please follow these steps:
+
+1. REQUIREMENT:
+   Make sure you have Python installed on your system.
+   You also need the 'pygame' library. 
+   If you don't have it, install it by running:
+   
+   pip install pygame
+
+2. HOW TO START:
+   The game is managed through the main menu. 
+   To launch the application, run the 'menu.py' file using Python.
+
+3. COMMAND:
+   Open your terminal/command prompt in the project folder and type:
+   
+   python menu.py
+
+4. ADDITIONAL NOTES:
+   - Ensure all project folders (like assets/ai) are kept in 
+     the same directory as menu.py.
+   - Use the menu to select your game mode and start playing.
+
+=========================================
