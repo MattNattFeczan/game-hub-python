@@ -4,8 +4,8 @@
 
 ## 🎮 Games
 
-### 🚢 Battleship
-**Key features and Co-authors:**
+## 🚢 Battleship
+* **Key features and Co-authors:**
 * **Aleksandra Urbańska**
   - **Bot opponent** - mimicking human-like behaviour by switching to targeted strikes after having found a ship and avoiding tiles adjacent to sunken ships.
   - **Visual effects** - particle-based burning ships, infinite water background and a screen shake effect on hit.
