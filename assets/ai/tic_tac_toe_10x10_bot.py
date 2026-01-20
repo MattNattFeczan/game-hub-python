@@ -90,6 +90,15 @@ def sprawdz_mozliwe_ruchy(plansza):
                 w_srodku = (wiersz, kolumna) in srodek
                 if w_srodku or ma_sasiada(plansza, wiersz, kolumna):     #optymalizacja ilosci pol ktore bot bierze pod uwage #test ze srodkiem
                     ruchy.append((wiersz, kolumna))
+    #sortowanie ruchow, aby te blizej srodka planszy byly sprawdzane jako pierwsze
+    #moze pomoc przy przycinaniu alfa-beta
+    def fukcja_sort(ruch):
+        w, k = ruch
+        bonus_srodek = 100 if (w, k) in srodek else 0
+        odleglosc = abs(w - 4.5) + abs(k - 4.5)
+        return bonus_srodek - odleglosc
+
+    ruchy.sort(key=funkcja_sort, reverse=True)
 
     return ruchy
 
