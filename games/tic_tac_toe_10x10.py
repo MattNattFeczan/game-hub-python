@@ -52,7 +52,7 @@ def draw_sidebar(screen, width, height, current_player):
         screen.blit(info2, (GAME_WIDTH + 20, 195))
 
     #informacja o turze
-    turn_msg = "Player's Turn" if current_player == 1 else "Bot is thinking..."
+    turn_msg = "Player's turn" if current_player == 1 else "Bot is thinking..."
     turn_color = GREEN if current_player == 1 else BOT_COLOR
     turn = font.render(turn_msg, True, turn_color)
     screen.blit(turn, (GAME_WIDTH + 20, 150))
