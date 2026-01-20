@@ -47,6 +47,19 @@
     - [Pixel art website](https://www.pixilart.com/)
     - Consultations with Gemini: assistance with learning Python basics, code formatting and debugging
 
+## 🏠 Menu
+
+* **Author: Maja Pazera**
+* **Key features:**
+    * **Centralized Navigation** – a unified interface designed for seamless switching between all available game modules (Battleship, Tic-Tac-Toe, Minesweeper).
+    * **Procedural Vector Icons** – custom icons for each game, drawn dynamically using Pygame’s drawing functions for a clean and scalable look.
+    * **Interactive UI** – dark-themed, modern interface featuring semi-transparent buttons and responsive hover-state animations.
+    * **Audio System** – background music integration with a functional "mute" toggle button.
+* **Sources and Methodology:**
+    * [Pygame documentation](https://www.pygame.org/docs/) – specifically regarding [Surface alpha](https://www.pygame.org/docs/ref/surface.html#pygame.Surface.set_alpha) and [mixer](https://www.pygame.org/docs/ref/mixer.html) modules.
+    * [Python documentation](https://docs.python.org/3/)
+    * Consultations with Gemini regarding modular code integration, UI component architecture, and optimizing vector-based rendering logic.
+
 ## 🚀 Features
 - **Central Hub:** Unified menu for easy game selection.
 - **Single-player vs Bot:** Challenge the computer in Tic-Tac-Toe and Battleship.
