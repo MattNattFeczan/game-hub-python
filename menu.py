@@ -52,9 +52,9 @@ def get_ttc_icon():
     pygame.draw.line(surf, (150, 150, 150), (26, 2), (26, 38), 2)
     pygame.draw.line(surf, (150, 150, 150), (2, 14), (38, 14), 2)
     pygame.draw.line(surf, (150, 150, 150), (2, 26), (38, 26), 2)
-    pygame.draw.line(surf, (230, 70, 60), (4, 4), (12, 12), 3)
-    pygame.draw.line(surf, (230, 70, 60), (12, 4), (4, 12), 3)
-    pygame.draw.circle(surf, (50, 200, 110), (20, 20), 5, 3)
+    pygame.draw.line(surf, (70, 170, 30), (4, 4), (12, 12), 3)
+    pygame.draw.line(surf, (70, 170, 30), (12, 4), (4, 12), 3)
+    pygame.draw.circle(surf, (170, 60, 170), (20, 20), 5, 3)
     return surf
 
 def get_ship_icon():
