@@ -5,8 +5,8 @@ import math
 
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
-GREEN = (0, 255, 0)
-YELLOW = (255, 255, 0)
+GREEN = (70, 170, 30)
+BOT_COLOR = (170, 60, 170)
 RED = (255, 0, 0)
 GRAY = (200, 200, 200)
 DARK_GRAY = (50, 50, 50)
@@ -53,7 +53,7 @@ def draw_sidebar(screen, width, height, current_player):
 
     #informacja o turze
     turn_msg = "Player's Turn" if current_player == 1 else "Bot is thinking..."
-    turn_color = GREEN if current_player == 1 else YELLOW
+    turn_color = GREEN if current_player == 1 else BOT_COLOR
     turn = font.render(turn_msg, True, turn_color)
     screen.blit(turn, (GAME_WIDTH + 20, 150))
 
@@ -74,7 +74,7 @@ def draw_grid(screen, width, height, square_size):
 def draw_figures(screen, board, square_size):
 
     COLOR_P1 = GREEN
-    COLOR_P2 = YELLOW
+    COLOR_P2 = BOT_COLOR
     LINE_WIDTH = 10
     OFFSET = square_size // 4
     RADIUS = square_size // 4
@@ -297,7 +297,7 @@ def launch_tictactoe(screen):
                 text_color = GREEN
             elif(winner == 2):
                 announcement = "Sorry, You have lost."
-                text_color = YELLOW
+                text_color = BOT_COLOR
             elif winner == 3:
                 announcement = "It's a draw!"
                 text_color = ORANGE
