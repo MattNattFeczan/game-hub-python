@@ -335,7 +335,8 @@ def launch_tictactoe(screen):
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                return "EXIT"
+                pygame.quit()
+                sys.exit()
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     return "MENU"
