@@ -28,7 +28,8 @@ def draw_sidebar(screen, width, height, current_player):
     pygame.draw.line(screen, (128,128,128), (GAME_WIDTH, 0), (GAME_WIDTH, height), 5)
 
     font = pygame.font.SysFont('arial', 20)
-    font2 = pygame.font.SysFont('arial', 15)
+    font2 = pygame.font.SysFont('arial', 13)
+    font3 = pygame.font.SysFont('arial', 14)
     title_font = pygame.font.SysFont('impact', 30)
 
     title = title_font.render("TIC TAC TOE", True, WHITE)
@@ -36,6 +37,19 @@ def draw_sidebar(screen, width, height, current_player):
 
     title2 = title_font.render("10x10", True, BLUE)
     screen.blit(title2, (GAME_WIDTH + 20, 70))
+
+    if current_player == 1:
+        ticks = pygame.time.get_ticks()
+        alpha = int(140 + 120 * math.sin(ticks * 0.005))
+
+        info1 = font3.render("Click on a square", True, WHITE)
+        info2 = font3.render("to make your move", True, WHITE)
+
+        info1.set_alpha(alpha)
+        info2.set_alpha(alpha)
+
+        screen.blit(info1, (GAME_WIDTH + 20, 180))
+        screen.blit(info2, (GAME_WIDTH + 20, 195))
 
     #informacja o turze
     turn_msg = "Player's Turn" if current_player == 1 else "Bot is thinking..."
@@ -47,8 +61,8 @@ def draw_sidebar(screen, width, height, current_player):
     esc_msg = font2.render("Press ESC to", True, GRAY)
     esc_msg2 = font2.render("go back to the menu", True, GRAY)
 
-    screen.blit(esc_msg, (GAME_WIDTH + 20, height - 80))
-    screen.blit(esc_msg2, (GAME_WIDTH + 20, height - 55))
+    screen.blit(esc_msg, (GAME_WIDTH + 20, height - 45))
+    screen.blit(esc_msg2, (GAME_WIDTH + 20, height - 30))
 
 def draw_grid(screen, width, height, square_size):
     for i in range(COLS+1):
