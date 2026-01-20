@@ -655,13 +655,13 @@ class ship():
         self.size_unit = size_unit
         if self.size_unit == 1:
             width = width
-            path = 'assets/duck.png'
+            path = 'assets/images/duck.png'
         elif self.size_unit == 2:
             width = convert(100, 'H')
-            path = 'assets/kapibara.png'
+            path = 'assets/images/kapibara.png'
         else:
             width = convert(164, 'H')
-            path = 'assets/croc.png'
+            path = 'assets/images/croc.png'
         self.image = pygame.image.load(path)
         self.image = pygame.transform.scale(self.image, (width, height))
         if self.size_unit == 1:
