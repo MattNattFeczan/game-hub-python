@@ -2,7 +2,6 @@ import pygame
 import sys
 from assets.ai.tic_tac_toe_10x10_bot import najlepszy_ruch
 import math
-from games.tic_tac_toe_10x10_bot import najlepszy_ruch
 
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
