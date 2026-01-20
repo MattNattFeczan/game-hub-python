@@ -21,7 +21,16 @@
     - https://www.pygame.org/docs/
     - https://docs.python.org/3/
       
-- **10x10 Tic-Tac-Toe**: 100-field board, **win by 5-in-a-row** (horizontal/vertical/diagonal) + unbeatable AI
+## ❌ Tic-Tac-Toe 10x10
+* **Authors: Mateusz Feczan & Bartłomiej Budziński**
+* **Key features:**
+  - **Unbeatable AI** - advanced logic designed to block player strategies and maximize winning chances on an expanded board.
+  - **Extended Grid** - 100-field board (10x10) requiring **5-in-a-row** (horizontal, vertical, or diagonal) to win.
+  - **Game Logic** - implementation of efficient board state evaluation and win-checking algorithms for large-scale grids.
+* **Sources and Methodology:**
+  - [Pygame documentation](https://www.pygame.org/docs/)
+  - [Python documentation](https://docs.python.org/3/)
+  - Consultations with Gemini regarding algorithm optimization, code formatting, and debugging of the game loop.
 
 ## 💣 Minesweeper
 * **Author: Weronika Hes**
