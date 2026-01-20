@@ -13,6 +13,7 @@ DARK_GRAY = (50, 50, 50)
 BLUE = (70, 130, 180)
 ORANGE = (255, 165, 0)
 SIDEBAR_COLOR = (40, 40, 50)
+LIGHT_BLUE = (200, 220, 230)
 
 ROWS = 10
 COLS = 10
@@ -221,6 +222,7 @@ def launch_tictactoe(screen):
     # getting the size of a screen
     w, h = screen.get_size()
     square_size = GAME_WIDTH // COLS
+    last_move = None
 
     # init the start values
     board = [[0 for _ in range(COLS)] for _ in range(ROWS)]
@@ -245,6 +247,10 @@ def launch_tictactoe(screen):
     while running:
 
         screen.fill(WHITE)
+        if last_move:
+            r, c = last_move
+            highlight_rect = pygame.Rect(c * square_size, r * square_size, square_size, square_size)
+            pygame.draw.rect(screen, LIGHT_BLUE, highlight_rect)
         draw_grid(screen, w, h, square_size)
         draw_figures(screen, board, square_size)
         draw_sidebar(screen, w, h, current_player)
@@ -328,6 +334,7 @@ def launch_tictactoe(screen):
             ruch = najlepszy_ruch(board)
             if ruch:
                 r, k = ruch
+                last_move = (r, k)
                 make_move(k * square_size + 1, r * square_size + 1, board, square_size, current_player)
                 current_player = 1
                 error_message = ""
@@ -351,10 +358,14 @@ def launch_tictactoe(screen):
                         winner = 0
                         current_player = 1
                         error_message = ""
+                        last_move = None
                 # if we have ended the game
                 else:
                     if current_player == 1:
                         if make_move(x, y, board, square_size, current_player):
+                            clicked_col = int(x // square_size)
+                            clicked_row = int(y // square_size)
+                            last_move = (clicked_row, clicked_col)
                             error_message = ""
                             current_player = 2
                         else:
