@@ -1,13 +1,39 @@
+import random
 PUSTE = 0
 BOT = 2
 GRACZ = 1
 MAX_GLEBOKOSC = 4
 
 def najlepszy_ruch(plansza):
-    #Przyjmuje stan planszy i zwraca najlepszy ruch dla bota.
-    wynik, ruch = minimax(plansza, MAX_GLEBOKOSC, float('-inf'), float('inf'), True)
+    mozliwe = sprawdz_mozliwe_ruchy(plansza)
 
-    return ruch
+    if not mozliwe:
+        return None
+
+    najlepszy_wynik = float('-inf')
+    najlepsze_ruchy = []
+
+    alpha = float('-inf')
+    beta = float('inf')
+
+    for ruch in mozliwe:
+        wiersz, kolumna = ruch
+        plansza[wiersz][kolumna] = BOT
+        wynik_temp, _ = minimax(plansza, MAX_GLEBOKOSC - 1, alpha, beta, False)
+        plansza[wiersz][kolumna] = PUSTE
+
+        if wynik_temp > najlepszy_wynik:
+            najlepszy_wynik = wynik_temp
+            najlepsze_ruchy = [ruch]
+        elif wynik_temp == najlepszy_wynik:
+            najlepsze_ruchy.append(ruch)
+
+        alpha = max(alpha, wynik_temp)
+
+    if najlepsze_ruchy:
+        return random.choice(najlepsze_ruchy)
+
+    return mozliwe[0]
 
 
 def minimax(plansza, glebokosc, alpha, beta, maksymalizujacy):
