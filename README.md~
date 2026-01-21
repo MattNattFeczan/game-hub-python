@@ -35,15 +35,10 @@
     - Consultations with Gemini regarding algorithm optimization, Python syntax and Pygame basics
 
 * **Mateusz Feczan**
-  - **Interactive Grid** – Implemented the responsive 10x10 board logic, including precise mouse coordinate mapping, invalid move detection, and main game window rendering.
-  - **Core Engine** – Managed the main game loop, state transitions, move execution, and the turn-based logic system between the player and the AI.
-  - **Project Architecture & Organization** – Designed the modular application structure, ensuring code readability and a clear separation between the game engine logic, AI modules, and graphical interface.
-  - **Repository Management** – Coordinated project development using version control (Git), maintaining code integrity, managing branches, and documenting progress throughout the development lifecycle.
+  - **Core Engine** - Managing the main game loop, game states, move execution, and alternating turns between the player and the bot.
+  - **Interactive Grid** - Implementation of the responsive 10x10 board logic, handling mouse input coordinates (including invalid move detection) and rendering the main game window.
   - **Sources and Methodology:**
-    - https://www.pygame.org/docs/
-    - Git Version Control Documentation
-    - [Get Started in Pygame](https://www.youtube.com/watch?v=y9VG3Pztok8)
-    - Consultations with Gemini regarding project structuring, repository management, and Python best practices
+    -
 
 ## 💣 Minesweeper
 * **Author: Weronika Hes**
