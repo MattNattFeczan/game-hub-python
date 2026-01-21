@@ -70,8 +70,46 @@ def sprawdz_mozliwe_ruchy(plansza):
     ruchy = []
     wiersze = len(plansza)
     kolumny = len(plansza[0])
-    srodek = [(4, 4), (4, 5), (5, 4), (5, 5),(3,4),(4,3),(5,3),(6,4),(3,5),(4,6),(5,6),(6,5)] #test
+    #srodek = [(4, 4), (4, 5), (5, 4), (5, 5),(3,4),(4,3),(5,3),(6,4),(3,5),(4,6),(5,6),(6,5)] #test
+    kierunki = [(-1, -1), (-1, 0), (-1, 1), (0, -1), (0, 1), (1, -1), (1, 0), (1, 1)]
+    kandydaci = []
+    srodek_planszy = (4.5, 4.5)
+   # srodek_srodek = [(4, 4), (4, 5), (5, 4), (5, 5)]
 
+    for w in range(wiersze):
+        for k in range(kolumny):
+            if plansza[w][k] == PUSTE:
+
+                waga = 0
+                ma_sasiada = False
+
+                for dw, dk in kierunki:
+                    nw, nk = w + dw, k + dk
+                    if 0 <= nw < wiersze and 0 <= nk < kolumny:
+                        sasiad = plansza[nw][nk]
+                        if sasiad == GRACZ:
+                            waga += 15
+                            ma_sasiada = True
+                        elif sasiad == BOT:
+                            waga += 10
+                            ma_sasiada = True
+
+                dist = abs(w - srodek_planszy[0]) + abs(k - srodek_planszy[1])
+                bonus_cent = max(0, 5 - (dist / 2))
+                waga += bonus_cent
+
+                #if (w, k) in srodek_srodek:
+                #    waga += 20
+
+                if ma_sasiada or waga > 2:
+                    kandydaci.append(((w, k), waga))
+
+    if not kandydaci:
+        return [(wiersze // 2, kolumny // 2)]
+
+    kandydaci.sort(key=lambda x: x[1], reverse=True)
+    ruchy = [x[0] for x in kandydaci]
+    """
     czy_plansza_pusta = True
     for w in range(wiersze):
         for k in range(kolumny):
@@ -92,16 +130,15 @@ def sprawdz_mozliwe_ruchy(plansza):
                     ruchy.append((wiersz, kolumna))
     #sortowanie ruchow, aby te blizej srodka planszy byly sprawdzane jako pierwsze
     #moze pomoc przy przycinaniu alfa-beta
-    def fukcja_sort(ruch):
+    def funkcja_sort(ruch):
         w, k = ruch
         bonus_srodek = 100 if (w, k) in srodek else 0
         odleglosc = abs(w - 4.5) + abs(k - 4.5)
         return bonus_srodek - odleglosc
-
     ruchy.sort(key=funkcja_sort, reverse=True)
-
+    """
     return ruchy
-
+"""
 def ma_sasiada(plansza, wiersz, kolumna):
     #sprawdza czy pole sasiaduje z zajetym polem
     wiersze = len(plansza)
@@ -117,7 +154,7 @@ def ma_sasiada(plansza, wiersz, kolumna):
             if(plansza[w][k] != PUSTE): #nie trzeba sprawdzac czy plansza[w][k] to sprawdzane pole, bo to pole jest puste
                 return True
     return False
-
+"""
 
 def ocena_planszy(plansza):
    #funkcja obliczajaca punkty dla aktualnego stanu, poprzez dodawanie punktow za sytuacje korzystne dla bota i
@@ -127,18 +164,37 @@ def ocena_planszy(plansza):
     wiersze = len(plansza)
     kolumny = len(plansza[0])
 
+
+    WAGI = [
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 1, 1, 1, 1, 1, 1, 1, 1, 0],
+        [0, 1, 5, 5, 5, 5, 5, 5, 1, 0],
+        [0, 1, 5, 15, 15, 15, 15, 5, 1, 0],
+        [0, 1, 5, 15, 60, 60, 15, 5, 1, 0],
+        [0, 1, 5, 15, 60, 60, 15, 5, 1, 0],
+        [0, 1, 5, 15, 15, 15, 15, 5, 1, 0],
+        [0, 1, 5, 5, 5, 5, 5, 5, 1, 0],
+        [0, 1, 1, 1, 1, 1, 1, 1, 1, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    ]
+
     for w in range(wiersze):
         for k in range(kolumny):
             #im blizej srodka planszy, tym wiecej punktow
-            mnoznik = 10
-            odleglosc_w = abs(w - 4.5)
-            odleglosc_k = abs(k - 4.5)
-            bonus = 10 - (odleglosc_w + odleglosc_k) * mnoznik      #test
+            #mnoznik = 10
+            #odleglosc_w = abs(w - 4.5)
+            #odleglosc_k = abs(k - 4.5)
+            #bonus = 10 - (odleglosc_w + odleglosc_k) * mnoznik      #test
 
             if plansza[w][k] == BOT:
-                srodek += bonus
+                suma += WAGI[w][k]
             elif plansza[w][k] == GRACZ:
-                srodek -= bonus
+                suma -= WAGI[w][k]
+
+            #if plansza[w][k] == BOT:
+            #    srodek += bonus
+            #elif plansza[w][k] == GRACZ:
+            #    srodek -= bonus
 
             #sprawdzenie w poziomie
             if k + 4 < kolumny:
@@ -160,7 +216,7 @@ def ocena_planszy(plansza):
                sekwencja = [plansza[w+i][k-i] for i in range(5)]
                suma += ocena_sekwencji(sekwencja)
 
-    return suma + srodek
+    return suma #+ srodek
 
 
 def ocena_sekwencji(sekwencja):
@@ -178,25 +234,25 @@ def ocena_sekwencji(sekwencja):
     if pola_bota == 5:
         punkty += 100000000
     elif pola_bota == 4:
-        punkty += 200000
+        punkty += 50000
     elif pola_bota == 3:
-        punkty += 2000
+        punkty += 500
     elif pola_bota == 2:
-        punkty += 200
+        punkty += 20
     elif pola_bota == 1:
-        punkty += 10
+        punkty += 1
 
     # punkty odjete za sekwencje gracza
     if pola_gracza == 5:
         punkty -= 200000000
     if pola_gracza == 4:
-        punkty -= 300000
+        punkty -= 100000
     elif pola_gracza == 3:
-        punkty -= 3000
+        punkty -= 1000
     elif pola_gracza == 2:
-        punkty -= 300
+        punkty -= 30
     elif pola_gracza == 1:
-        punkty -= 10
+        punkty -= 1
 
     return punkty
 
