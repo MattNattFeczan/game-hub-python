@@ -38,7 +38,7 @@
   - **Interactive Grid** – Implemented the responsive 10x10 board logic, including precise mouse coordinate mapping, invalid move detection, and main game window rendering.
   - **Core Engine** – Managed the main game loop, state transitions, move execution, and the turn-based logic system between the player and the AI.
   - **Project Architecture & Organization** – Designed the modular application structure, ensuring code readability and a clear separation between the game engine logic, AI modules, and graphical interface.
-  - **Repository Management** – Coordinated project development using version control (Git), maintaining code integrity, managing branches, and documenting progress throughout the development lifecycle.
+  - **Repository Management** – Coordinated project development using version control (Git), maintaining code integrity and managing branches.
   - **Sources and Methodology:**
     - https://www.pygame.org/docs/
     - Git Version Control Documentation
