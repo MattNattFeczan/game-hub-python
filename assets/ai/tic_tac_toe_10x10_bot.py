@@ -28,7 +28,7 @@ def minimax(plansza, glebokosc, alpha, beta, maksymalizujacy):
 
     najlepszy = None #najlepszy ruch do zwrocenia
 
-    if(maksymalizujacy):
+    if maksymalizujacy:
         max_wynik = float('-inf')
         for ruch in mozliwe_ruchy:
             wiersz, kolumna = ruch
@@ -148,7 +148,7 @@ def sprawdz_mozliwe_ruchy(plansza):
 
                 #bonus za centrum planszy
                 dist = abs(w - srodek_planszy[0]) + abs(k - srodek_planszy[1])
-                waga += max(0, 5 - (dist // 2))
+                waga += max(0, 5 - int(dist // 2))
 
                 if ma_sasiada or waga > 2:
                     kandydaci.append(((w, k), waga))
