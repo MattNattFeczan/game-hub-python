@@ -22,15 +22,23 @@
     - https://docs.python.org/3/
       
 ## ❌ Tic-Tac-Toe 10x10
-* **Authors: Mateusz Feczan & Bartłomiej Budziński**
-* **Key features:**
-  - **Unbeatable AI** - advanced logic designed to block player strategies and maximize winning chances on an expanded board.
-  - **Extended Grid** - 100-field board (10x10) requiring **5-in-a-row** (horizontal, vertical, or diagonal) to win.
-  - **Game Logic** - implementation of efficient board state evaluation and win-checking algorithms for large-scale grids.
-* **Sources and Methodology:**
-  - [Pygame documentation](https://www.pygame.org/docs/)
-  - [Python documentation](https://docs.python.org/3/)
-  - Consultations with Gemini regarding algorithm optimization, code formatting, and debugging of the game loop.
+* **Key features and Co-authors:**
+* **Bartłomiej Budziński**
+  - **AI Architecture** - Designed and programmed the unbeatable bot using Minimax (depth 4) with alpha-peta pruning and forward pruning (limiting search to best candidates for performance).
+  - **Heuristic Logic** - Created board evaluation algorithms (using string matching for patterns like "broken lines" or "open threes/fours") to optimize AI decisions.
+  - **Visual Enhancements (HUD)** - Implemented the dynamic sidebar, turn indicators, flashing text prompts ("Player's turn"), fade-out animations for error messages, and last-move highlighting to improve user experience (UX).
+  - **Menu Navigation** - Added "Esc" functionality for returning to the main menu.
+  - **Sources and Methodology:**
+    - https://www.youtube.com/watch?v=l-hh51ncgDI
+    - https://docs.python.org/3/
+    - https://www.pygame.org/docs/
+    - Consultations with Gemini regarding algorithm optimization, Python syntax and Pygame basicc
+
+* **Mateusz Feczan**
+  - **Core Engine** - Managing the main game loop, game states, move execution, and alternating turns between the player and the bot.
+  - **Interactive Grid** - Implementation of the responsive 10x10 board logic, handling mouse input coordinates (including invalid move detection) and rendering the main game window.
+  - **Sources and Methodology:**
+    -
 
 ## 💣 Minesweeper
 * **Author: Weronika Hes**
