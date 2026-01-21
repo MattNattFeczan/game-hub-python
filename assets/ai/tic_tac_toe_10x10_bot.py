@@ -6,7 +6,7 @@ MAX_GLEBOKOSC = 4
 def najlepszy_ruch(plansza):
     #Przyjmuje stan planszy i zwraca najlepszy ruch dla bota.
     wynik, ruch = minimax(plansza, MAX_GLEBOKOSC, float('-inf'), float('inf'), True)
-    #print(f"Bot wybrał ruch {ruch} z oceną {wynik}") #debug
+
     return ruch
 
 
