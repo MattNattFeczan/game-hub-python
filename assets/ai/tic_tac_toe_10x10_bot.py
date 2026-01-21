@@ -159,7 +159,7 @@ def sprawdz_mozliwe_ruchy(plansza):
     kandydaci.sort(key=lambda x: x[1], reverse=True)
 
     #sprawdzamy tylko najlepszych kandydatow na ruch zeby przyspieszyc czas obliczen
-    najlepsi_kandydaci = kandydaci[:13]
+    najlepsi_kandydaci = kandydaci[:15]
 
     ruchy = [x[0] for x in najlepsi_kandydaci]
 
