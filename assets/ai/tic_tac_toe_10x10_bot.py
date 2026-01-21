@@ -1,7 +1,7 @@
 PUSTE = 0
 BOT = 2
 GRACZ = 1
-MAX_GLEBOKOSC = 3
+MAX_GLEBOKOSC = 4
 
 def najlepszy_ruch(plansza):
     #Przyjmuje stan planszy i zwraca najlepszy ruch dla bota.
@@ -16,50 +16,50 @@ def minimax(plansza, glebokosc, alpha, beta, maksymalizujacy):
     #beta - najnizszy wynik do ktorego gracz moze zmusic bota we wczesniej sprawdzonych galeziach
     zwyciezca = end_game_copy(plansza)
     if zwyciezca == BOT:
-        return 1000000 + glebokosc, None
-    elif zwyciezca == GRACZ: return -1000000, None
-    
+        return 1000000000 + glebokosc, None
+    elif zwyciezca == GRACZ: return -2000000000, None
+
     if glebokosc == 0:
         return ocena_planszy(plansza), None
-    
+
     mozliwe_ruchy = sprawdz_mozliwe_ruchy(plansza)
     if not mozliwe_ruchy:
         return 0, None  #remis, brak mozliwych ruchow
-    
+
     najlepszy = None #najlepszy ruch do zwrocenia
-    
+
     if(maksymalizujacy):
         max_wynik = float('-inf')
         for ruch in mozliwe_ruchy:
             wiersz, kolumna = ruch
             plansza[wiersz][kolumna] = BOT
-            
+
             wynik_temp, _  = minimax(plansza, glebokosc - 1, alpha, beta, False )
             plansza[wiersz][kolumna] = PUSTE
-            
+
             if wynik_temp > max_wynik:
                 max_wynik = wynik_temp
                 najlepszy = ruch
-            
+
             alpha = max(alpha, wynik_temp)
             if beta <= alpha:
                 break  #gracz nie wybierze tej galezi, bo ma dostepny nizszy wynik we wczesniej sprawdzonych galeziach
         return max_wynik, najlepszy
-                
-            
+
+
     else:
         min_wynik = float('inf')
         for ruch in mozliwe_ruchy:
             wiersz, kolumna = ruch
             plansza[wiersz][kolumna] = GRACZ
-            
+
             wynik_temp, _ = minimax(plansza, glebokosc - 1, alpha, beta, True)
             plansza[wiersz][kolumna] = PUSTE
-            
+
             if wynik_temp < min_wynik:
                 min_wynik = wynik_temp
                 najlepszy = ruch
-            
+
             beta = min(beta, wynik_temp)
             if beta <= alpha:
                 break  #bot nie wybierze tej galezi, bo ma dostepny wyzszy wynik we wczesniej sprawdzonych galeziach
@@ -67,39 +67,88 @@ def minimax(plansza, glebokosc, alpha, beta, maksymalizujacy):
 
 
 def sprawdz_mozliwe_ruchy(plansza):
-    ruchy = []
     wiersze = len(plansza)
     kolumny = len(plansza[0])
-    #srodek = [(4, 4), (4, 5), (5, 4), (5, 5),(3,4),(4,3),(5,3),(6,4),(3,5),(4,6),(5,6),(6,5)] #test
-    kierunki = [(-1, -1), (-1, 0), (-1, 1), (0, -1), (0, 1), (1, -1), (1, 0), (1, 1)]
+    kierunki_glowne = [(1, 0), (0, 1), (1, 1), (1, -1)]
     kandydaci = []
     srodek_planszy = (4.5, 4.5)
-   # srodek_srodek = [(4, 4), (4, 5), (5, 4), (5, 5)]
 
     for w in range(wiersze):
         for k in range(kolumny):
             if plansza[w][k] == PUSTE:
-
                 waga = 0
                 ma_sasiada = False
 
-                for dw, dk in kierunki:
-                    nw, nk = w + dw, k + dk
-                    if 0 <= nw < wiersze and 0 <= nk < kolumny:
-                        sasiad = plansza[nw][nk]
-                        if sasiad == GRACZ:
-                            waga += 15
-                            ma_sasiada = True
-                        elif sasiad == BOT:
-                            waga += 10
-                            ma_sasiada = True
+                max_linia_gracza = 0
+                max_linia_bota = 0
 
+                for dr, dc in kierunki_glowne:
+
+                    #sprawdzamy jak dlugie powstana linie w obie strony
+                    #gracz:
+                    dlugosc_g = 0
+                    #strona 1
+                    for i in range(1, 5):
+                        r, c = w + dr * i, k + dc * i
+                        if 0 <= r < wiersze and 0 <= c < kolumny and plansza[r][c] == GRACZ:
+                            dlugosc_g += 1
+                        else:
+                            break
+                    #strona 2
+                    for i in range(1, 5):
+                        r, c = w - dr * i, k - dc * i
+                        if 0 <= r < wiersze and 0 <= c < kolumny and plansza[r][c] == GRACZ:
+                            dlugosc_g += 1
+                        else:
+                            break
+
+                    #to samo  dla bota
+                    dlugosc_b = 0
+                    for i in range(1, 5):
+                        r, c = w + dr * i, k + dc * i
+                        if 0 <= r < wiersze and 0 <= c < kolumny and plansza[r][c] == BOT:
+                            dlugosc_b += 1
+                        else:
+                            break
+                    for i in range(1, 5):
+                        r, c = w - dr * i, k - dc * i
+                        if 0 <= r < wiersze and 0 <= c < kolumny and plansza[r][c] == BOT:
+                            dlugosc_b += 1
+                        else:
+                            break
+
+                    if dlugosc_g > 0: ma_sasiada = True
+                    if dlugosc_b > 0: ma_sasiada = True
+
+                    max_linia_gracza = max(max_linia_gracza, dlugosc_g)
+                    max_linia_bota = max(max_linia_bota, dlugosc_b)
+
+                    #sprawdzamy czy sa dziury w ktore powinno sie zagrac
+                    p1r, p1c = w + dr, k + dc
+                    p2r, p2c = w - dr, k - dc
+                    if 0 <= p1r < wiersze and 0 <= p1c < kolumny and \
+                            0 <= p2r < wiersze and 0 <= p2c < kolumny:
+                        if plansza[p1r][p1c] == GRACZ and plansza[p2r][p2c] == GRACZ:
+                            waga += 200
+                        elif plansza[p1r][p1c] == BOT and plansza[p2r][p2c] == BOT:
+                            waga += 100
+
+
+                #przyznajemy wagi zeby odpowiednio sortowac ruchy
+                if max_linia_gracza >= 4: waga += 100000
+                if max_linia_bota >= 4:   waga += 100000
+
+                if max_linia_gracza == 3: waga += 10000
+                if max_linia_bota == 3:   waga += 10000
+
+                if max_linia_gracza == 2: waga += 1000
+                if max_linia_bota == 2:   waga += 1000
+
+                if ma_sasiada: waga += 10
+
+                #bonus za centrum planszy
                 dist = abs(w - srodek_planszy[0]) + abs(k - srodek_planszy[1])
-                bonus_cent = max(0, 5 - (dist / 2))
-                waga += bonus_cent
-
-                #if (w, k) in srodek_srodek:
-                #    waga += 20
+                waga += max(0, 5 - (dist // 2))
 
                 if ma_sasiada or waga > 2:
                     kandydaci.append(((w, k), waga))
@@ -108,151 +157,103 @@ def sprawdz_mozliwe_ruchy(plansza):
         return [(wiersze // 2, kolumny // 2)]
 
     kandydaci.sort(key=lambda x: x[1], reverse=True)
-    ruchy = [x[0] for x in kandydaci]
-    """
-    czy_plansza_pusta = True
-    for w in range(wiersze):
-        for k in range(kolumny):
-            if plansza[w][k] != PUSTE:
-                czy_plansza_pusta = False
-                break
-        if not czy_plansza_pusta:
-            break
 
-    if czy_plansza_pusta:
-        return [(wiersze // 2, kolumny // 2)]  # jesli plansza jest pusta, zagraj na srodku
+    #sprawdzamy tylko najlepszych kandydatow na ruch zeby przyspieszyc czas obliczen
+    najlepsi_kandydaci = kandydaci[:13]
 
-    for wiersz in range(wiersze):
-        for kolumna in range(kolumny):
-            if plansza[wiersz][kolumna] == PUSTE:
-                w_srodku = (wiersz, kolumna) in srodek
-                if w_srodku or ma_sasiada(plansza, wiersz, kolumna):     #optymalizacja ilosci pol ktore bot bierze pod uwage #test ze srodkiem
-                    ruchy.append((wiersz, kolumna))
-    #sortowanie ruchow, aby te blizej srodka planszy byly sprawdzane jako pierwsze
-    #moze pomoc przy przycinaniu alfa-beta
-    def funkcja_sort(ruch):
-        w, k = ruch
-        bonus_srodek = 100 if (w, k) in srodek else 0
-        odleglosc = abs(w - 4.5) + abs(k - 4.5)
-        return bonus_srodek - odleglosc
-    ruchy.sort(key=funkcja_sort, reverse=True)
-    """
+    ruchy = [x[0] for x in najlepsi_kandydaci]
+
     return ruchy
-"""
-def ma_sasiada(plansza, wiersz, kolumna):
-    #sprawdza czy pole sasiaduje z zajetym polem
-    wiersze = len(plansza)
-    kolumny = len(plansza[0])
-    promien = 1
-    wiersz_start = max(0, wiersz - promien)
-    wiersz_kon = min(wiersze, wiersz + promien + 1)
-    kolumna_start = max(0, kolumna - promien)
-    kolumna_kon = min(kolumny, kolumna + promien + 1)
 
-    for w in range(wiersz_start, wiersz_kon):
-        for k in range(kolumna_start, kolumna_kon):
-            if(plansza[w][k] != PUSTE): #nie trzeba sprawdzac czy plansza[w][k] to sprawdzane pole, bo to pole jest puste
-                return True
-    return False
-"""
 
 def ocena_planszy(plansza):
-   #funkcja obliczajaca punkty dla aktualnego stanu, poprzez dodawanie punktow za sytuacje korzystne dla bota i
-   #odejmowanie punktow za sytuacje korzystne dla gracza
-    suma = 0
-    srodek = 0
+    # funkcja obliczajaca punkty dla aktualnego stanu, poprzez dodawanie punktow za sytuacje korzystne dla bota i
+    # odejmowanie punktow za sytuacje korzystne dla gracza
+    #traktowanie sekwecnji jako napis pozwala na dokladniejsze sprawdzanie wzorcow
     wiersze = len(plansza)
     kolumny = len(plansza[0])
-
+    suma = 0
 
     WAGI = [
         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         [0, 1, 1, 1, 1, 1, 1, 1, 1, 0],
-        [0, 1, 5, 5, 5, 5, 5, 5, 1, 0],
-        [0, 1, 5, 15, 15, 15, 15, 5, 1, 0],
-        [0, 1, 5, 15, 60, 60, 15, 5, 1, 0],
-        [0, 1, 5, 15, 60, 60, 15, 5, 1, 0],
-        [0, 1, 5, 15, 15, 15, 15, 5, 1, 0],
-        [0, 1, 5, 5, 5, 5, 5, 5, 1, 0],
+        [0, 1, 2, 2, 2, 2, 2, 2, 1, 0],
+        [0, 1, 2, 3, 3, 3, 3, 2, 1, 0],
+        [0, 1, 2, 3, 4, 4, 3, 2, 1, 0],
+        [0, 1, 2, 3, 4, 4, 3, 2, 1, 0],
+        [0, 1, 2, 3, 3, 3, 3, 2, 1, 0],
+        [0, 1, 2, 2, 2, 2, 2, 2, 1, 0],
         [0, 1, 1, 1, 1, 1, 1, 1, 1, 0],
         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
     ]
 
-    for w in range(wiersze):
-        for k in range(kolumny):
-            #im blizej srodka planszy, tym wiecej punktow
-            #mnoznik = 10
-            #odleglosc_w = abs(w - 4.5)
-            #odleglosc_k = abs(k - 4.5)
-            #bonus = 10 - (odleglosc_w + odleglosc_k) * mnoznik      #test
+    linie_do_oceny = []
 
+    #poizom
+    for w in range(wiersze):
+        linia = "".join(str(plansza[w][k]) for k in range(kolumny))
+        linie_do_oceny.append(linia)
+        for k in range(kolumny):
             if plansza[w][k] == BOT:
                 suma += WAGI[w][k]
             elif plansza[w][k] == GRACZ:
                 suma -= WAGI[w][k]
+    #pion
+    for k in range(kolumny):
+        linia = "".join(str(plansza[w][k]) for w in range(wiersze))
+        linie_do_oceny.append(linia)
 
-            #if plansza[w][k] == BOT:
-            #    srodek += bonus
-            #elif plansza[w][k] == GRACZ:
-            #    srodek -= bonus
+    #skos
+    for k in range(kolumny - 4):
+        linia = "".join(str(plansza[i][k + i]) for i in range(min(wiersze, kolumny - k)))
+        linie_do_oceny.append(linia)
+    for w in range(1, wiersze - 4):
+        linia = "".join(str(plansza[w + i][i]) for i in range(min(kolumny, wiersze - w)))
+        linie_do_oceny.append(linia)
+    for k in range(4, kolumny):
+        linia = "".join(str(plansza[i][k - i]) for i in range(min(wiersze, k + 1)))
+        linie_do_oceny.append(linia)
+    for w in range(1, wiersze - 4):
+        linia = "".join(str(plansza[w + i][kolumny - 1 - i]) for i in range(min(kolumny, wiersze - w)))
+        linie_do_oceny.append(linia)
 
-            #sprawdzenie w poziomie
-            if k + 4 < kolumny:
-               sekwencja = [plansza[w][k+i] for i in range(5)]
-               suma += ocena_sekwencji(sekwencja)
+    for linia in linie_do_oceny:
+        suma += ocen_linie_string(linia)
 
-            #sprawdzenie w pionie
-            if w + 4 < wiersze:
-               sekwencja = [plansza[w+i][k] for i in range(5)]
-               suma += ocena_sekwencji(sekwencja)
-
-            #sprawdzenie w skosie w prawo i w dol
-            if w + 4 < wiersze and k + 4 < kolumny:
-               sekwencja = [plansza[w+i][k+i] for i in range(5)]
-               suma += ocena_sekwencji(sekwencja)
-
-            #sprawdzenie w skosie w lewo i w dol
-            if w + 4 < wiersze and k - 4 >= 0:
-               sekwencja = [plansza[w+i][k-i] for i in range(5)]
-               suma += ocena_sekwencji(sekwencja)
-
-    return suma #+ srodek
+    return suma
 
 
-def ocena_sekwencji(sekwencja):
-    #funkcja przyznajaca punkty za konkretna sekwencje pieciu pol
+def ocen_linie_string(linia):
+    #funckja przyznaje punkty za konkretne wzorce w linii
     punkty = 0
-    pola_bota = sekwencja.count(BOT)
-    pola_gracza = sekwencja.count(GRACZ)
 
-    # jesli sekwencja zawiera pola obu grajacych,
-    # to nie prowadzi do zwyciestwa i nie jest zagrozeniem
-    if pola_bota > 0 and pola_gracza > 0:
-        return 0
+    #piatki
+    if '22222' in linia: return 1000000000
+    if '11111' in linia: return -2000000000
 
-    #punkty przyznane za sekwencje bota
-    if pola_bota == 5:
-        punkty += 100000000
-    elif pola_bota == 4:
-        punkty += 50000
-    elif pola_bota == 3:
-        punkty += 500
-    elif pola_bota == 2:
-        punkty += 20
-    elif pola_bota == 1:
-        punkty += 1
+    #otwrte czworki
+    if '022220' in linia: punkty += 10000000
+    if '011110' in linia: punkty -= 20000000
 
-    # punkty odjete za sekwencje gracza
-    if pola_gracza == 5:
-        punkty -= 200000000
-    if pola_gracza == 4:
-        punkty -= 100000
-    elif pola_gracza == 3:
-        punkty -= 1000
-    elif pola_gracza == 2:
-        punkty -= 30
-    elif pola_gracza == 1:
-        punkty -= 1
+    #czworki z dziura
+    if '20222' in linia or '22022' in linia or '22202' in linia: punkty += 10000000
+    if '10111' in linia or '11011' in linia or '11101' in linia: punkty -= 20000000
+
+    #czworki otwarte z jednej strony
+    if '02222' in linia or '22220' in linia: punkty += 10000000
+    if '01111' in linia or '11110' in linia: punkty -= 20000000
+
+    punkty += linia.count('02220') * 500000
+    punkty -= linia.count('01110') * 800000
+
+
+    punkty += linia.count('00222') * 5000
+    punkty += linia.count('22200') * 5000
+    punkty -= linia.count('00111') * 6000
+    punkty -= linia.count('11100') * 6000
+
+    punkty += linia.count('0220') * 500
+    punkty -= linia.count('0110') * 600
 
     return punkty
 
@@ -263,21 +264,21 @@ def end_game_copy(board):
             na_polu = board[wiersz][kolumna]
             if na_polu == 0:
                 continue
-                
+
             if kolumna + 4 < 10:
                 if (board[wiersz][kolumna + 1] == na_polu and
                         board[wiersz][kolumna + 2] == na_polu and
                         board[wiersz][kolumna + 3] == na_polu and
                         board[wiersz][kolumna + 4] == na_polu):
                     return na_polu
-                
+
             if wiersz + 4 < 10:
                 if (board[wiersz + 1][kolumna] == na_polu and
                         board[wiersz + 2][kolumna] == na_polu and
                         board[wiersz + 3][kolumna] == na_polu and
                         board[wiersz + 4][kolumna] == na_polu):
                     return na_polu
-                
+
             if wiersz + 4 < 10 and kolumna + 4 < 10:
                 if (board[wiersz + 1][kolumna + 1] == na_polu and
                         board[wiersz + 2][kolumna + 2] == na_polu and
