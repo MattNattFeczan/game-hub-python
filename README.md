@@ -29,7 +29,8 @@
   - **Visual Enhancements (HUD)** - Implemented the dynamic sidebar, turn indicators, flashing text prompts ("Player's turn"), fade-out animations for error messages, and last-move highlighting to improve user experience (UX).
   - **Menu Navigation** - Added "Esc" functionality for returning to the main menu.
   - **Sources and Methodology:**
-    - https://www.youtube.com/watch?v=l-hh51ncgDI
+    - [Pygame in 18 Minutes](https://www.youtube.com/watch?v=blLLtdv4tvo)
+    - [Algorithms Explained – minimax and alpha-beta pruning](https://www.youtube.com/watch?v=l-hh51ncgDI)
     - https://docs.python.org/3/
     - https://www.pygame.org/docs/
     - Consultations with Gemini regarding algorithm optimization, Python syntax and Pygame basics
