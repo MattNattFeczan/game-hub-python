@@ -24,7 +24,7 @@
 ## ❌ Tic-Tac-Toe 10x10
 * **Key features and Co-authors:**
 * **Bartłomiej Budziński**
-  - **AI Architecture** - Designed and programmed the unbeatable bot using Minimax (depth 4) with alpha-beta pruning and forward pruning (limiting search to best candidates for performance).
+  - **AI Architecture** - Designed and programmed the unbeatable bot using Minimax (depth 4) with alpha-beta pruning and forward pruning (limiting search to best candidates for performance). Implemented non-deterministic move selection to prevent repetitive gameplay patterns.
   - **Heuristic Logic** - Created board evaluation algorithms (using string matching for patterns like "broken lines" or "open threes/fours") to optimize AI decisions.
   - **Visual Enhancements (HUD)** - Implemented the dynamic sidebar, turn indicators, flashing text prompts ("Player's turn"), fade-out animations for error messages, and last-move highlighting to improve user experience (UX).
   - **Menu Navigation** - Added "Esc" functionality for returning to the main menu.
