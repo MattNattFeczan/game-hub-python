@@ -32,7 +32,7 @@
     - https://www.youtube.com/watch?v=l-hh51ncgDI
     - https://docs.python.org/3/
     - https://www.pygame.org/docs/
-    - Consultations with Gemini regarding algorithm optimization, Python syntax and Pygame basicc
+    - Consultations with Gemini regarding algorithm optimization, Python syntax and Pygame basics
 
 * **Mateusz Feczan**
   - **Core Engine** - Managing the main game loop, game states, move execution, and alternating turns between the player and the bot.
